@@ -19,7 +19,7 @@ export async function POST(req) {
   const headers = corsHeaders();
   try {
     const body = await req.json();
-    const { nome, cpf, email, telefone, valor, items } = body || {};
+    const { nome, cpf, email, telefone, valor, items, endereco } = body || {};
 
     if (!nome || !cpf || !valor) {
       return NextResponse.json({ error: 'Dados obrigatorios: nome, cpf, valor' }, { status: 400, headers });
@@ -37,50 +37,81 @@ export async function POST(req) {
     const emailFallback = email || `${docNumber}@example.com`;
     const valorCentavos = parseInt(valor, 10);
 
-    // Constroi items pro Imperium
+    // Constroi items — todos com tangible: true (flores fisicas)
     const impItems = Array.isArray(items) && items.length > 0
       ? items.map((i) => ({
-          title: i.nome || i.title || 'Produto',
-          quantity: i.qtd || i.quantity || 1,
-          unitPrice: parseInt(i.preco * 100, 10) || parseInt(i.unitPrice, 10) || valorCentavos,
+          title: (i.nome || i.title || 'Produto').slice(0, 100),
+          unitPrice: parseInt((i.preco || 0) * 100, 10) || valorCentavos,
+          quantity: parseInt(i.qtd || i.quantity || 1, 10),
+          tangible: true,
         }))
-      : [{ title: 'Pedido Rosa Maria', quantity: 1, unitPrice: valorCentavos }];
+      : [{ title: 'Pedido Rosa Maria', unitPrice: valorCentavos, quantity: 1, tangible: true }];
 
-    const impResp = await fetch('https://api.imperiumpay.com.br/v1/sales', {
+    // Body seguindo docs oficiais
+    const impBody = {
+      amount: valorCentavos,
+      paymentMethod: 'PIX',
+      customer: {
+        name: nome,
+        email: emailFallback,
+        document: {
+          type: 'cpf',
+          number: docNumber,
+        },
+        phone: phone,
+      },
+      items: impItems,
+      postbackUrl: `${new URL(req.url).origin}/api/pix/imperium/webhook`,
+      metadata: {
+        source: 'rosa-maria-floricultura',
+      },
+    };
+
+    // Se tem endereco, adiciona shipping (obrigatorio pra tangible: true)
+    if (endereco?.cep && endereco?.rua) {
+      impBody.shipping = {
+        street: endereco.rua,
+        streetNumber: endereco.numero || 'S/N',
+        complement: endereco.complemento || '',
+        zipCode: (endereco.cep || '').replace(/\D/g, ''),
+        neighborhood: endereco.bairro || '',
+        city: endereco.cidade || '',
+        state: (endereco.uf || 'SP').toUpperCase(),
+        country: 'br',
+      };
+    }
+
+    // URL correta: /api/sales (nao /v1/sales!)
+    const impResp = await fetch('https://api.imperiumpay.com.br/api/sales', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'X-Api-Public-Key': publicKey,
         'X-Api-Private-Key': privateKey,
       },
-      body: JSON.stringify({
-        amount: valorCentavos,
-        paymentMethod: 'PIX',
-        customer: {
-          name: nome,
-          document: docNumber,
-          email: emailFallback,
-          phone: phone,
-        },
-        items: impItems,
-      }),
+      body: JSON.stringify(impBody),
     });
 
     const data = await impResp.json();
 
     if (!impResp.ok) {
       console.error('[pix imperium] erro:', impResp.status, JSON.stringify(data));
-      return NextResponse.json({ error: data.message || 'Erro ao criar pagamento', detalhes: data }, { status: impResp.status, headers });
+      return NextResponse.json({
+        error: data.message || data.error || 'Erro ao criar pagamento',
+        status: impResp.status,
+        detalhes: data,
+      }, { status: impResp.status, headers });
     }
 
     const sale = data.sale || data;
-    const pixInfo = sale.payment?.pix || sale.pix || {};
-    const qrCode = pixInfo.qrCodeBase64 || pixInfo.qrcode || pixInfo.qrCode;
-    const copiaCola = pixInfo.key || pixInfo.code || pixInfo.copyPaste;
-    const transactionId = String(sale.id || data.id || '');
+    const pixInfo = sale.payment?.pix || {};
+    const qrCode = pixInfo.qrCodeBase64;
+    const copiaCola = pixInfo.key;
+    const transactionId = String(sale.id || '');
 
     if (!transactionId) {
-      return NextResponse.json({ error: 'Resposta inesperada da Imperium' }, { status: 500, headers });
+      console.error('[pix imperium] resposta sem id:', data);
+      return NextResponse.json({ error: 'Resposta inesperada da Imperium', detalhes: data }, { status: 500, headers });
     }
 
     return NextResponse.json({
@@ -89,6 +120,7 @@ export async function POST(req) {
       pixCode: copiaCola,
       pixQrCodeImage: qrCode,
       valor: valorCentavos,
+      expiresAt: pixInfo.expiresAt,
     }, { headers });
   } catch (e) {
     console.error('[pix imperium] excecao:', e);

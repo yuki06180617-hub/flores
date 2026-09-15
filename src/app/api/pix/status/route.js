@@ -32,7 +32,7 @@ export async function GET(req) {
       return NextResponse.json({ id, status: 'pending', paid: false, source: 'no_creds' });
     }
 
-    const resp = await fetch(`https://api.imperiumpay.com.br/v1/sales/${id}`, {
+    const resp = await fetch(`https://api.imperiumpay.com.br/api/sales/${id}`, {
       method: 'GET',
       headers: {
         'X-Api-Public-Key': publicKey,
@@ -46,8 +46,8 @@ export async function GET(req) {
 
     const data = await resp.json();
     const sale = data.sale || data;
-    const rawStatus = String(sale.status || sale.paymentStatus || 'pending').toLowerCase();
-    const isPaid = ['paid', 'approved', 'completed', 'success'].some(s => rawStatus.includes(s));
+    const rawStatus = String(sale.status || 'PENDENTE').toUpperCase();
+    const isPaid = ['PAGO', 'PAID', 'APPROVED', 'COMPLETED'].some(s => rawStatus.includes(s));
 
     if (isPaid) {
       globalThis._pixCache.set(id, {
