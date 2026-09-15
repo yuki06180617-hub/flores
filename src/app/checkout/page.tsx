@@ -14,7 +14,7 @@ const PIX_LOGO = 'data:image/svg+xml;utf8,' + encodeURIComponent(`<svg xmlns="ht
 export default function CheckoutPage() {
   const router = useRouter();
   const [itens, setItens] = useState<Item[]>([]);
-  const [dados, setDados] = useState({ nome: '', cpf: '', email: '', telefone: '', cep: '', endereco: '', complemento: '', destinatario: '', mensagem: '' });
+  const [dados, setDados] = useState({ nome: '', cpf: '', email: '', telefone: '', cep: '', rua: '', numero: '', bairro: '', cidade: '', uf: '', complemento: '', destinatario: '', mensagem: '' });
   const [metodo, setMetodo] = useState<'pix' | 'cartao'>('pix');
   const [gerando, setGerando] = useState(false);
   const [erro, setErro] = useState('');
@@ -30,7 +30,14 @@ export default function CheckoutPage() {
       if (cepSalvo) {
         try {
           const c = JSON.parse(cepSalvo);
-          setDados(d => ({ ...d, cep: c.cep || '', endereco: c.logradouro ? `${c.logradouro}, ${c.bairro || ''} - ${c.localidade || ''}/${c.uf || ''}`.replace(/\s*-\s*\/\s*/g, '') : '' }));
+          setDados(d => ({
+            ...d,
+            cep: c.cep || '',
+            rua: c.logradouro || '',
+            bairro: c.bairro || '',
+            cidade: c.localidade || '',
+            uf: c.uf || '',
+          }));
         } catch {}
       }
     } catch {}
@@ -48,7 +55,12 @@ export default function CheckoutPage() {
     if (dados.cpf.replace(/\D/g, '').length !== 11) { setErro('CPF inválido'); return; }
     if (!dados.email.includes('@')) { setErro('Email inválido'); return; }
     if (dados.telefone.replace(/\D/g, '').length < 10) { setErro('Telefone inválido'); return; }
-    if (!dados.cep || !dados.endereco.trim()) { setErro('Preencha CEP e endereço'); return; }
+    if (!dados.cep || dados.cep.replace(/\D/g,'').length !== 8) { setErro('CEP inválido'); return; }
+    if (!dados.rua.trim()) { setErro('Preencha a rua'); return; }
+    if (!dados.numero.trim()) { setErro('Preencha o número'); return; }
+    if (!dados.bairro.trim()) { setErro('Preencha o bairro'); return; }
+    if (!dados.cidade.trim()) { setErro('Preencha a cidade'); return; }
+    if (!dados.uf.trim() || dados.uf.length !== 2) { setErro('UF inválida'); return; }
 
     setGerando(true);
     try {
@@ -66,6 +78,15 @@ export default function CheckoutPage() {
           telefone: dados.telefone.replace(/\D/g, ''),
           valor: valorCentavos,
           items: itens,
+          endereco: {
+            cep: dados.cep.replace(/\D/g, ''),
+            rua: dados.rua,
+            numero: dados.numero,
+            bairro: dados.bairro,
+            cidade: dados.cidade,
+            uf: dados.uf.toUpperCase(),
+            complemento: dados.complemento,
+          },
         }),
       });
       const data = await resp.json();
@@ -143,11 +164,56 @@ export default function CheckoutPage() {
               <div style={{ display: 'grid', gap: 14 }}>
                 <div>
                   <label style={{ fontSize: 12, fontWeight: 700, color: '#555', display: 'block', marginBottom: 6 }}>CEP</label>
-                  <input type="text" value={dados.cep} onChange={(e) => setDados({ ...dados, cep: formatarCep(e.target.value) })} placeholder="00000-000" style={inputStyle} />
+                  <input
+                    type="text"
+                    value={dados.cep}
+                    onChange={async (e) => {
+                      const v = formatarCep(e.target.value);
+                      setDados({ ...dados, cep: v });
+                      const l = v.replace(/\D/g, '');
+                      if (l.length === 8) {
+                        try {
+                          const r = await fetch(`https://viacep.com.br/ws/${l}/json/`);
+                          const d = await r.json();
+                          if (!d.erro) {
+                            setDados(prev => ({
+                              ...prev,
+                              rua: d.logradouro || prev.rua,
+                              bairro: d.bairro || prev.bairro,
+                              cidade: d.localidade || prev.cidade,
+                              uf: d.uf || prev.uf,
+                            }));
+                          }
+                        } catch {}
+                      }
+                    }}
+                    placeholder="00000-000"
+                    style={inputStyle}
+                  />
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 130px', gap: 12 }}>
+                  <div>
+                    <label style={{ fontSize: 12, fontWeight: 700, color: '#555', display: 'block', marginBottom: 6 }}>Rua</label>
+                    <input type="text" value={dados.rua} onChange={(e) => setDados({ ...dados, rua: e.target.value })} placeholder="Nome da rua" style={inputStyle} />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 12, fontWeight: 700, color: '#555', display: 'block', marginBottom: 6 }}>Número</label>
+                    <input type="text" value={dados.numero} onChange={(e) => setDados({ ...dados, numero: e.target.value })} placeholder="123" style={inputStyle} />
+                  </div>
                 </div>
                 <div>
-                  <label style={{ fontSize: 12, fontWeight: 700, color: '#555', display: 'block', marginBottom: 6 }}>Endereço completo</label>
-                  <input type="text" value={dados.endereco} onChange={(e) => setDados({ ...dados, endereco: e.target.value })} placeholder="Rua, número, bairro, cidade" style={inputStyle} />
+                  <label style={{ fontSize: 12, fontWeight: 700, color: '#555', display: 'block', marginBottom: 6 }}>Bairro</label>
+                  <input type="text" value={dados.bairro} onChange={(e) => setDados({ ...dados, bairro: e.target.value })} placeholder="Bairro" style={inputStyle} />
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 80px', gap: 12 }}>
+                  <div>
+                    <label style={{ fontSize: 12, fontWeight: 700, color: '#555', display: 'block', marginBottom: 6 }}>Cidade</label>
+                    <input type="text" value={dados.cidade} onChange={(e) => setDados({ ...dados, cidade: e.target.value })} placeholder="Cidade" style={inputStyle} />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 12, fontWeight: 700, color: '#555', display: 'block', marginBottom: 6 }}>UF</label>
+                    <input type="text" value={dados.uf} onChange={(e) => setDados({ ...dados, uf: e.target.value.toUpperCase().slice(0, 2) })} placeholder="SP" style={inputStyle} maxLength={2} />
+                  </div>
                 </div>
                 <div>
                   <label style={{ fontSize: 12, fontWeight: 700, color: '#555', display: 'block', marginBottom: 6 }}>Complemento (opcional)</label>
