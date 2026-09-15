@@ -46,7 +46,7 @@ export async function POST(req) {
         }))
       : [{ title: 'Pedido Rosa Maria', quantity: 1, unitPrice: valorCentavos }];
 
-    const impResp = await fetch('https://api.imperiumpay.com/v1/sales', {
+    const impResp = await fetch('https://api.imperiumpay.com.br/v1/sales', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

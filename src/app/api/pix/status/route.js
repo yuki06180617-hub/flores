@@ -32,7 +32,7 @@ export async function GET(req) {
       return NextResponse.json({ id, status: 'pending', paid: false, source: 'no_creds' });
     }
 
-    const resp = await fetch(`https://api.imperiumpay.com/v1/sales/${id}`, {
+    const resp = await fetch(`https://api.imperiumpay.com.br/v1/sales/${id}`, {
       method: 'GET',
       headers: {
         'X-Api-Public-Key': publicKey,
