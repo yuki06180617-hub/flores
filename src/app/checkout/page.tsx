@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ChevronLeft, ShoppingCart, CreditCard, Lock, ShieldCheck, Truck, Calendar, Bell, User, MapPin, CheckCircle2 } from 'lucide-react';
+import { ChevronLeft, ShoppingCart, CreditCard, Lock, ShieldCheck, Truck, Calendar, Bell, User, MapPin, CheckCircle2, Loader2, AlertCircle } from 'lucide-react';
 import { NOME_LOJA, COR_PRIMARIA, COR_SOFT } from '@/lib/flores-produtos';
 import { proximosDiasComSlots } from '@/lib/flores-entrega';
 import LogoRosas from '@/components/LogoRosas';
@@ -12,17 +12,17 @@ type Item = { slug: string; nome: string; preco: number; qtd: number };
 const GREEN = '#059669';
 const PIX_LOGO = 'data:image/svg+xml;utf8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 40"><text x="0" y="30" font-family="Arial" font-size="28" font-weight="900" fill="#32BCAD">Pix</text></svg>`);
 
-type Step = 1 | 2 | 3 | 4;
+type Step = 1 | 2 | 3;
 
 const STEPS: { n: Step; label: string; icone: any }[] = [
   { n: 1, label: 'Dados', icone: User },
-  { n: 2, label: 'Entrega', icone: Truck },
-  { n: 3, label: 'Endereço', icone: MapPin },
-  { n: 4, label: 'Pagamento', icone: CreditCard },
+  { n: 2, label: 'Endereço', icone: MapPin },
+  { n: 3, label: 'Pagamento', icone: CreditCard },
 ];
 
 export default function CheckoutPage() {
   const router = useRouter();
+  const [cepConfirmado, setCepConfirmado] = useState(false);
   const [step, setStep] = useState<Step>(1);
   const [itens, setItens] = useState<Item[]>([]);
   const [dados, setDados] = useState({ nome: '', cpf: '', telefone: '', cep: '', rua: '', numero: '', bairro: '', cidade: '', uf: '', complemento: '', destinatario: '', mensagem: '' });
@@ -33,6 +33,11 @@ export default function CheckoutPage() {
   const [metodo, setMetodo] = useState<'pix' | 'cartao'>('pix');
   const [gerando, setGerando] = useState(false);
   const [erro, setErro] = useState('');
+
+  // CEP step
+  const [buscandoCep, setBuscandoCep] = useState(false);
+  const [cepEncontrado, setCepEncontrado] = useState<any>(null);
+  const [cepErro, setCepErro] = useState('');
 
   const diasSlots = proximosDiasComSlots();
   const slotsDoDia = diasSlots.find(d => d.data === entregaData)?.slots || [];
@@ -47,7 +52,10 @@ export default function CheckoutPage() {
       if (cepSalvo) {
         try {
           const c = JSON.parse(cepSalvo);
-          setDados(d => ({ ...d, cep: c.cep || '', rua: c.logradouro || '', bairro: c.bairro || '', cidade: c.localidade || '', uf: c.uf || '' }));
+          if (c.cep && c.logradouro) {
+            setDados(d => ({ ...d, cep: c.cep || '', rua: c.logradouro || '', bairro: c.bairro || '', cidade: c.localidade || '', uf: c.uf || '' }));
+            setCepEncontrado({ logradouro: c.logradouro, bairro: c.bairro, localidade: c.localidade, uf: c.uf });
+          }
         } catch {}
       }
     } catch {}
@@ -68,10 +76,16 @@ export default function CheckoutPage() {
   const consultarCep = async (cepMasked: string) => {
     const l = cepMasked.replace(/\D/g, '');
     if (l.length !== 8) return;
+    setBuscandoCep(true);
+    setCepErro('');
+    setCepEncontrado(null);
     try {
       const r = await fetch(`https://viacep.com.br/ws/${l}/json/`);
       const d = await r.json();
-      if (!d.erro) {
+      if (d.erro) {
+        setCepErro('CEP não encontrado. Verifique o número.');
+      } else {
+        setCepEncontrado(d);
         setDados(prev => ({
           ...prev,
           rua: d.logradouro || prev.rua,
@@ -79,8 +93,22 @@ export default function CheckoutPage() {
           cidade: d.localidade || prev.cidade,
           uf: d.uf || prev.uf,
         }));
+        try { localStorage.setItem('flores_cep', JSON.stringify({ cep: cepMasked, ...d })); } catch {}
       }
-    } catch {}
+    } catch {
+      setCepErro('Erro ao consultar CEP. Tente novamente.');
+    }
+    setBuscandoCep(false);
+  };
+
+  const confirmarCep = () => {
+    if (!cepEncontrado) { setCepErro('Digite um CEP válido'); return; }
+    if (entregaTipo === 'agendada' && (!entregaData || !entregaSlot)) {
+      setCepErro('Escolha data e horário');
+      return;
+    }
+    setCepErro('');
+    setCepConfirmado(true);
   };
 
   const validarStep1 = () => {
@@ -90,11 +118,6 @@ export default function CheckoutPage() {
     return '';
   };
   const validarStep2 = () => {
-    if (entregaTipo === 'agendada' && (!entregaData || !entregaSlot)) return 'Escolha data e horário para entrega agendada';
-    return '';
-  };
-  const validarStep3 = () => {
-    if (!dados.cep || dados.cep.replace(/\D/g, '').length !== 8) return 'CEP inválido';
     if (!dados.rua.trim()) return 'Preencha a rua';
     if (!dados.numero.trim()) return 'Preencha o número';
     if (!dados.bairro.trim()) return 'Preencha o bairro';
@@ -107,16 +130,16 @@ export default function CheckoutPage() {
     let msg = '';
     if (step === 1) msg = validarStep1();
     else if (step === 2) msg = validarStep2();
-    else if (step === 3) msg = validarStep3();
     if (msg) { setErro(msg); return; }
     setErro('');
-    if (step < 4) setStep((step + 1) as Step);
+    if (step < 3) setStep((step + 1) as Step);
     if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const voltar = () => {
     setErro('');
     if (step > 1) setStep((step - 1) as Step);
+    else setCepConfirmado(false); // Volta pro CEP se estava no step 1
     if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -124,7 +147,6 @@ export default function CheckoutPage() {
     setErro('');
     const m1 = validarStep1(); if (m1) { setStep(1); setErro(m1); return; }
     const m2 = validarStep2(); if (m2) { setStep(2); setErro(m2); return; }
-    const m3 = validarStep3(); if (m3) { setStep(3); setErro(m3); return; }
 
     setGerando(true);
     try {
@@ -160,6 +182,170 @@ export default function CheckoutPage() {
   const inputStyle = { width: '100%', padding: '12px 14px', border: '1.5px solid #E5E5E5', borderRadius: 8, fontSize: 15, boxSizing: 'border-box' as const, fontFamily: 'inherit', outline: 'none' };
   const labelStyle = { fontSize: 12, fontWeight: 700, color: '#555', display: 'block', marginBottom: 6 };
 
+  // ============================================
+  // TELA CEP (bloqueia acesso ao checkout ate confirmar)
+  // ============================================
+  if (!cepConfirmado) {
+    return (
+      <main style={{ minHeight: '100vh', background: '#FAFAF7', fontFamily: "'Inter', system-ui, sans-serif" }}>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Great+Vibes&display=swap" rel="stylesheet" />
+
+        <div style={{ background: '#1a0f0f', color: '#FFF', padding: '9px 20px', fontSize: 12, textAlign: 'center' }}>
+          Entrega das 06:30 às 22:30 · Entrega expressa ou agendada
+        </div>
+
+        <header style={{ background: '#FFF', borderBottom: '1px solid #F0DDDD', padding: '14px 16px' }}>
+          <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 12 }}>
+            <Link href="/" style={{ textDecoration: 'none' }}>
+              <LogoRosas height={40} mostrarTagline={false} />
+            </Link>
+            <div style={{ flex: 1, textAlign: 'right', fontSize: 12, color: '#666', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 6 }}>
+              <Lock size={13} color={GREEN} />
+            </div>
+          </div>
+        </header>
+
+        <div style={{ maxWidth: 560, margin: '0 auto', padding: '16px' }}>
+          <button onClick={() => router.push('/')} style={{ background: 'transparent', border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, color: '#666', fontSize: 13, marginBottom: 16, padding: 0, fontFamily: 'inherit' }}>
+            <ChevronLeft size={16} /> Continuar comprando
+          </button>
+
+          <div style={{ background: '#FFF', borderRadius: 14, padding: 24, border: '1px solid #F0DDDD' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+              <div style={{ width: 40, height: 40, background: COR_PRIMARIA, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Truck size={20} color="#FFF" />
+              </div>
+              <div>
+                <div style={{ fontSize: 16, fontWeight: 800, color: '#1a0f0f', letterSpacing: '-0.01em' }}>Onde vamos entregar?</div>
+                <div style={{ fontSize: 12, color: '#8a6a6a' }}>Digite o CEP para calcular o tempo</div>
+              </div>
+            </div>
+
+            <div style={{ marginTop: 20, position: 'relative' }}>
+              <label style={labelStyle}>CEP de entrega</label>
+              <input
+                type="tel"
+                inputMode="numeric"
+                autoFocus
+                value={dados.cep}
+                onChange={(e) => {
+                  const v = formatarCep(e.target.value);
+                  setDados({ ...dados, cep: v });
+                  setCepEncontrado(null);
+                  setCepErro('');
+                  if (v.replace(/\D/g, '').length === 8) consultarCep(v);
+                }}
+                placeholder="00000-000"
+                style={{ ...inputStyle, paddingRight: 40 }}
+              />
+              {buscandoCep && <Loader2 size={16} color={COR_PRIMARIA} style={{ position: 'absolute', right: 12, top: 34, animation: 'spin 1s linear infinite' }} />}
+            </div>
+
+            {cepErro && (
+              <div style={{ marginTop: 12, padding: 10, background: '#FEF2F2', color: COR_PRIMARIA, borderRadius: 8, fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <AlertCircle size={14} /> {cepErro}
+              </div>
+            )}
+
+            {cepEncontrado && !cepErro && (
+              <>
+                <div style={{ marginTop: 16, padding: 14, background: '#FAFAF7', border: '1px solid #F0EDE8', borderRadius: 10 }}>
+                  <div style={{ fontSize: 11, color: '#8a6a6a', fontWeight: 700, marginBottom: 4, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+                    <CheckCircle2 size={12} color={GREEN} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />
+                    Entregamos aqui
+                  </div>
+                  <div style={{ fontSize: 13, color: '#333', fontWeight: 600, lineHeight: 1.4 }}>
+                    {cepEncontrado.logradouro && `${cepEncontrado.logradouro}, `}{cepEncontrado.bairro && `${cepEncontrado.bairro} — `}{cepEncontrado.localidade}/{cepEncontrado.uf}
+                  </div>
+                </div>
+
+                <div style={{ marginTop: 20, fontSize: 12, fontWeight: 700, color: '#8a6a6a', letterSpacing: '0.05em', textTransform: 'uppercase', marginBottom: 10 }}>Como você quer receber?</div>
+
+                <div style={{ display: 'grid', gap: 10, marginBottom: entregaTipo === 'agendada' ? 14 : 0 }}>
+                  <div onClick={() => setEntregaTipo('expressa')} style={{ padding: 14, border: `2px solid ${entregaTipo === 'expressa' ? COR_PRIMARIA : '#E5E5E5'}`, borderRadius: 10, background: entregaTipo === 'expressa' ? '#FFF8F8' : '#FFF', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <div style={{ width: 20, height: 20, borderRadius: '50%', border: `2px solid ${entregaTipo === 'expressa' ? COR_PRIMARIA : '#CCC'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      {entregaTipo === 'expressa' && <div style={{ width: 10, height: 10, borderRadius: '50%', background: COR_PRIMARIA }} />}
+                    </div>
+                    <div style={{ width: 42, height: 42, background: `${GREEN}15`, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <Truck size={20} color={GREEN} />
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: '#1a0f0f' }}>Entrega expressa</div>
+                      <div style={{ fontSize: 12, color: GREEN, fontWeight: 700, marginTop: 2 }}>45 a 90 minutos após a compra</div>
+                    </div>
+                  </div>
+
+                  <div onClick={() => setEntregaTipo('agendada')} style={{ padding: 14, border: `2px solid ${entregaTipo === 'agendada' ? COR_PRIMARIA : '#E5E5E5'}`, borderRadius: 10, background: entregaTipo === 'agendada' ? '#FFF8F8' : '#FFF', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <div style={{ width: 20, height: 20, borderRadius: '50%', border: `2px solid ${entregaTipo === 'agendada' ? COR_PRIMARIA : '#CCC'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      {entregaTipo === 'agendada' && <div style={{ width: 10, height: 10, borderRadius: '50%', background: COR_PRIMARIA }} />}
+                    </div>
+                    <div style={{ width: 42, height: 42, background: `${COR_PRIMARIA}15`, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <Calendar size={20} color={COR_PRIMARIA} />
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: '#1a0f0f' }}>Entrega agendada</div>
+                      <div style={{ fontSize: 12, color: '#666', marginTop: 2 }}>Escolha data e horário</div>
+                    </div>
+                  </div>
+                </div>
+
+                {entregaTipo === 'agendada' && (
+                  <div style={{ background: '#FAFAF7', borderRadius: 10, padding: 14, marginTop: 4 }}>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: '#8a6a6a', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8 }}>Data</div>
+                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 14 }}>
+                      {diasSlots.map((d) => (
+                        <button key={d.data} onClick={() => { setEntregaData(d.data); setEntregaSlot(''); }} style={{ padding: '8px 14px', border: `1.5px solid ${entregaData === d.data ? COR_PRIMARIA : '#E5E5E5'}`, background: entregaData === d.data ? COR_PRIMARIA : '#FFF', color: entregaData === d.data ? '#FFF' : '#555', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+                          {d.label}
+                        </button>
+                      ))}
+                    </div>
+
+                    {entregaData && (
+                      <>
+                        <div style={{ fontSize: 11, fontWeight: 700, color: '#8a6a6a', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8 }}>Horário</div>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(115px, 1fr))', gap: 8 }}>
+                          {slotsDoDia.map((s) => (
+                            <button key={s.value} onClick={() => setEntregaSlot(s.value)} style={{ padding: '10px 8px', border: `1.5px solid ${entregaSlot === s.value ? COR_PRIMARIA : '#E5E5E5'}`, background: entregaSlot === s.value ? COR_PRIMARIA : '#FFF', color: entregaSlot === s.value ? '#FFF' : '#555', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+                              {s.label}
+                            </button>
+                          ))}
+                          {slotsDoDia.length === 0 && <div style={{ fontSize: 12, color: '#8a6a6a', gridColumn: '1/-1' }}>Sem horários disponíveis.</div>}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
+
+                <button onClick={confirmarCep} style={{ width: '100%', marginTop: 20, padding: '16px', background: COR_PRIMARIA, color: '#FFF', border: 'none', borderRadius: 10, fontSize: 15, fontWeight: 800, cursor: 'pointer' }}>
+                  Continuar pedido →
+                </button>
+              </>
+            )}
+
+            <div style={{ marginTop: 20, fontSize: 12, color: '#8a6a6a', textAlign: 'center' }}>
+              Frete <b style={{ color: GREEN }}>grátis</b> para toda cidade
+            </div>
+          </div>
+
+          {/* Info do carrinho */}
+          <div style={{ marginTop: 16, padding: '12px 16px', background: '#FFF', borderRadius: 10, border: '1px solid #F0DDDD', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ fontSize: 13, color: '#8a6a6a' }}>
+              <ShoppingCart size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 6 }} />
+              {itens.length} {itens.length === 1 ? 'item' : 'itens'} · <b style={{ color: '#1a0f0f' }}>R$ {total},00</b>
+            </div>
+          </div>
+        </div>
+
+        <style jsx>{`
+          @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        `}</style>
+      </main>
+    );
+  }
+
+  // ============================================
+  // CHECKOUT NORMAL (apos confirmar CEP)
+  // ============================================
   const StepIndicator = () => (
     <div style={{ background: '#FFF', borderRadius: 12, padding: '16px 12px', border: '1px solid #F0DDDD', marginBottom: 16 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 4 }}>
@@ -170,13 +356,7 @@ export default function CheckoutPage() {
           return (
             <div key={s.n} style={{ display: 'flex', alignItems: 'center', flex: idx === STEPS.length - 1 ? '0' : '1', gap: 0 }}>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, flexShrink: 0 }}>
-                <div style={{
-                  width: 36, height: 36, borderRadius: '50%',
-                  background: isDone ? GREEN : (isActive ? COR_PRIMARIA : '#F0DDDD'),
-                  color: isDone || isActive ? '#FFF' : '#8a6a6a',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  transition: 'all 0.2s',
-                }}>
+                <div style={{ width: 36, height: 36, borderRadius: '50%', background: isDone ? GREEN : (isActive ? COR_PRIMARIA : '#F0DDDD'), color: isDone || isActive ? '#FFF' : '#8a6a6a', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }}>
                   <Ico size={16} />
                 </div>
                 <div style={{ fontSize: 10, fontWeight: 700, color: isActive ? COR_PRIMARIA : (isDone ? GREEN : '#8a6a6a'), letterSpacing: '0.03em', textAlign: 'center' }}>{s.label}</div>
@@ -205,17 +385,28 @@ export default function CheckoutPage() {
             <LogoRosas height={40} mostrarTagline={false} />
           </Link>
           <div style={{ flex: 1, textAlign: 'right', fontSize: 12, color: '#666', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 6 }}>
-            <Lock size={13} color={GREEN} /> <span style={{ display: 'none' }} className="hide-mobile">Ambiente seguro</span>
+            <Lock size={13} color={GREEN} />
           </div>
         </div>
       </header>
 
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: '16px' }}>
-        <button onClick={() => step === 1 ? router.push('/') : voltar()} style={{ background: 'transparent', border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, color: '#666', fontSize: 13, marginBottom: 16, padding: 0, fontFamily: 'inherit' }}>
-          <ChevronLeft size={16} /> {step === 1 ? 'Continuar comprando' : 'Voltar'}
+        <button onClick={() => step === 1 ? setCepConfirmado(false) : voltar()} style={{ background: 'transparent', border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, color: '#666', fontSize: 13, marginBottom: 16, padding: 0, fontFamily: 'inherit' }}>
+          <ChevronLeft size={16} /> {step === 1 ? 'Trocar CEP/entrega' : 'Voltar'}
         </button>
 
-        <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 26, fontWeight: 600, marginBottom: 16, color: '#1a0f0f', letterSpacing: '-0.01em' }}>Finalizar Pedido</h1>
+        <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 26, fontWeight: 600, marginBottom: 8, color: '#1a0f0f', letterSpacing: '-0.01em' }}>Finalizar Pedido</h1>
+
+        {/* Recap CEP/entrega */}
+        <div style={{ marginBottom: 16, padding: '10px 14px', background: `${GREEN}0d`, border: `1px solid ${GREEN}30`, borderRadius: 10, fontSize: 12, color: '#333', display: 'flex', gap: 10, alignItems: 'center' }}>
+          <CheckCircle2 size={16} color={GREEN} style={{ flexShrink: 0 }} />
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <b style={{ color: '#1a0f0f' }}>
+              {entregaTipo === 'expressa' ? 'Entrega expressa (45-90min)' : `Agendada ${entregaData} · ${entregaSlot}`}
+            </b>
+            <span style={{ color: '#666' }}> · {dados.cep}{cepEncontrado?.bairro ? ` · ${cepEncontrado.bairro}` : ''}</span>
+          </div>
+        </div>
 
         <StepIndicator />
 
@@ -250,76 +441,13 @@ export default function CheckoutPage() {
               </div>
             )}
 
-            {/* STEP 2 - ENTREGA */}
+            {/* STEP 2 - ENDERECO/RECEBIMENTO */}
             {step === 2 && (
               <div style={{ background: '#FFF', borderRadius: 14, padding: 20, border: '1px solid #F0DDDD' }}>
-                <div style={{ fontSize: 16, fontWeight: 800, marginBottom: 4, color: '#1a0f0f' }}>Entrega</div>
-                <div style={{ fontSize: 12, color: '#8a6a6a', marginBottom: 20 }}>Como você quer receber?</div>
-
-                <div style={{ display: 'grid', gap: 10, marginBottom: entregaTipo === 'agendada' ? 18 : 0 }}>
-                  <div onClick={() => setEntregaTipo('expressa')} style={{ padding: 14, border: `2px solid ${entregaTipo === 'expressa' ? COR_PRIMARIA : '#E5E5E5'}`, borderRadius: 10, background: entregaTipo === 'expressa' ? '#FFF8F8' : '#FFF', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <div style={{ width: 20, height: 20, borderRadius: '50%', border: `2px solid ${entregaTipo === 'expressa' ? COR_PRIMARIA : '#CCC'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                      {entregaTipo === 'expressa' && <div style={{ width: 10, height: 10, borderRadius: '50%', background: COR_PRIMARIA }} />}
-                    </div>
-                    <Truck size={20} color={COR_PRIMARIA} style={{ flexShrink: 0 }} />
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 14, fontWeight: 700, color: '#1a0f0f' }}>Entregar o quanto antes</div>
-                      <div style={{ fontSize: 12, color: '#666', marginTop: 2 }}>Em até 1 hora após pagamento</div>
-                    </div>
-                  </div>
-
-                  <div onClick={() => setEntregaTipo('agendada')} style={{ padding: 14, border: `2px solid ${entregaTipo === 'agendada' ? COR_PRIMARIA : '#E5E5E5'}`, borderRadius: 10, background: entregaTipo === 'agendada' ? '#FFF8F8' : '#FFF', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <div style={{ width: 20, height: 20, borderRadius: '50%', border: `2px solid ${entregaTipo === 'agendada' ? COR_PRIMARIA : '#CCC'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                      {entregaTipo === 'agendada' && <div style={{ width: 10, height: 10, borderRadius: '50%', background: COR_PRIMARIA }} />}
-                    </div>
-                    <Calendar size={20} color={COR_PRIMARIA} style={{ flexShrink: 0 }} />
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 14, fontWeight: 700, color: '#1a0f0f' }}>Agendar entrega</div>
-                      <div style={{ fontSize: 12, color: '#666', marginTop: 2 }}>Escolha data e horário</div>
-                    </div>
-                  </div>
-                </div>
-
-                {entregaTipo === 'agendada' && (
-                  <div style={{ background: '#FAFAF7', borderRadius: 10, padding: 14 }}>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: '#8a6a6a', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8 }}>Data</div>
-                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 14 }}>
-                      {diasSlots.map((d) => (
-                        <button key={d.data} onClick={() => { setEntregaData(d.data); setEntregaSlot(''); }} style={{ padding: '8px 14px', border: `1.5px solid ${entregaData === d.data ? COR_PRIMARIA : '#E5E5E5'}`, background: entregaData === d.data ? COR_PRIMARIA : '#FFF', color: entregaData === d.data ? '#FFF' : '#555', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
-                          {d.label}
-                        </button>
-                      ))}
-                    </div>
-
-                    {entregaData && (
-                      <>
-                        <div style={{ fontSize: 11, fontWeight: 700, color: '#8a6a6a', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8 }}>Horário</div>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(115px, 1fr))', gap: 8 }}>
-                          {slotsDoDia.map((s) => (
-                            <button key={s.value} onClick={() => setEntregaSlot(s.value)} style={{ padding: '10px 8px', border: `1.5px solid ${entregaSlot === s.value ? COR_PRIMARIA : '#E5E5E5'}`, background: entregaSlot === s.value ? COR_PRIMARIA : '#FFF', color: entregaSlot === s.value ? '#FFF' : '#555', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
-                              {s.label}
-                            </button>
-                          ))}
-                          {slotsDoDia.length === 0 && <div style={{ fontSize: 12, color: '#8a6a6a', gridColumn: '1/-1' }}>Sem horários disponíveis.</div>}
-                        </div>
-                      </>
-                    )}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* STEP 3 - ENDERECO/RECEBIMENTO */}
-            {step === 3 && (
-              <div style={{ background: '#FFF', borderRadius: 14, padding: 20, border: '1px solid #F0DDDD' }}>
-                <div style={{ fontSize: 16, fontWeight: 800, marginBottom: 4, color: '#1a0f0f' }}>Dados do recebimento</div>
-                <div style={{ fontSize: 12, color: '#8a6a6a', marginBottom: 20 }}>Endereço + mensagem opcional</div>
+                <div style={{ fontSize: 16, fontWeight: 800, marginBottom: 4, color: '#1a0f0f' }}>Endereço de entrega</div>
+                <div style={{ fontSize: 12, color: '#8a6a6a', marginBottom: 20 }}>Complete os dados do endereço</div>
 
                 <div style={{ display: 'grid', gap: 14 }}>
-                  <div>
-                    <label style={labelStyle}>CEP</label>
-                    <input type="tel" inputMode="numeric" value={dados.cep} onChange={(e) => { const v = formatarCep(e.target.value); setDados({ ...dados, cep: v }); consultarCep(v); }} placeholder="00000-000" style={inputStyle} />
-                  </div>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 110px', gap: 10 }}>
                     <div>
                       <label style={labelStyle}>Rua</label>
@@ -360,8 +488,8 @@ export default function CheckoutPage() {
               </div>
             )}
 
-            {/* STEP 4 - PAGAMENTO */}
-            {step === 4 && (
+            {/* STEP 3 - PAGAMENTO */}
+            {step === 3 && (
               <div style={{ background: '#FFF', borderRadius: 14, padding: 20, border: '1px solid #F0DDDD' }}>
                 <div style={{ fontSize: 16, fontWeight: 800, marginBottom: 4, color: '#1a0f0f' }}>Forma de pagamento</div>
                 <div style={{ fontSize: 12, color: '#8a6a6a', marginBottom: 20 }}>Escolha como quer pagar</div>
@@ -392,13 +520,12 @@ export default function CheckoutPage() {
                   <div style={{ background: '#EEE', color: '#666', padding: '3px 8px', borderRadius: 12, fontSize: 9, fontWeight: 800, letterSpacing: '0.05em', flexShrink: 0 }}>EM BREVE</div>
                 </div>
 
-                {/* Resumo compacto pra revisao antes de pagar */}
                 <div style={{ marginTop: 20, background: '#FAFAF7', borderRadius: 10, padding: 14 }}>
                   <div style={{ fontSize: 11, fontWeight: 700, color: '#8a6a6a', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8 }}>Revisão</div>
                   <div style={{ fontSize: 12, color: '#333', lineHeight: 1.6 }}>
                     <div><b>{dados.nome}</b> · {dados.telefone}</div>
                     <div style={{ marginTop: 4 }}>
-                      {entregaTipo === 'expressa' ? 'Entrega expressa (até 1h)' : `Agendada para ${entregaData} · ${entregaSlot}`}
+                      {entregaTipo === 'expressa' ? 'Entrega expressa (45-90min)' : `Agendada ${entregaData} · ${entregaSlot}`}
                     </div>
                     <div style={{ marginTop: 4 }}>
                       {dados.rua}, {dados.numero} · {dados.bairro} · {dados.cidade}/{dados.uf}
@@ -410,9 +537,9 @@ export default function CheckoutPage() {
 
             {erro && <div style={{ marginTop: 12, background: '#FEF2F2', color: '#B91C1C', padding: 12, borderRadius: 8, fontSize: 13 }}>{erro}</div>}
 
-            {/* Botoes navegacao */}
+            {/* Botoes */}
             <div style={{ marginTop: 16, display: 'grid', gap: 10 }}>
-              {step < 4 ? (
+              {step < 3 ? (
                 <button onClick={proximo} style={{ width: '100%', padding: '16px', background: COR_PRIMARIA, color: '#FFF', border: 'none', borderRadius: 10, fontSize: 15, fontWeight: 800, cursor: 'pointer' }}>
                   Continuar →
                 </button>
@@ -421,11 +548,9 @@ export default function CheckoutPage() {
                   {gerando ? 'Gerando PIX...' : `Pagar R$ ${total},00 com PIX`}
                 </button>
               )}
-              {step > 1 && (
-                <button onClick={voltar} style={{ width: '100%', padding: '13px', background: 'transparent', color: '#666', border: '1px solid #E5E5E5', borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
-                  ← Voltar
-                </button>
-              )}
+              <button onClick={voltar} style={{ width: '100%', padding: '13px', background: 'transparent', color: '#666', border: '1px solid #E5E5E5', borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
+                ← Voltar
+              </button>
             </div>
 
             <div style={{ marginTop: 20, display: 'flex', justifyContent: 'center', gap: 16, fontSize: 11, color: '#8a6a6a' }}>
@@ -434,7 +559,7 @@ export default function CheckoutPage() {
             </div>
           </div>
 
-          {/* Resumo lateral — SO desktop */}
+          {/* Resumo desktop */}
           <div className="resumo-desktop" style={{ display: 'none' }}>
             <div style={{ background: '#FFF', borderRadius: 14, padding: 20, border: '1px solid #F0DDDD', position: 'sticky', top: 20 }}>
               <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 16, color: '#1a0f0f', display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -462,7 +587,7 @@ export default function CheckoutPage() {
           </div>
         </div>
 
-        {/* Resumo compacto — so mobile (bem no topo, dobradinho) */}
+        {/* Total mobile fixo */}
         <div className="resumo-mobile" style={{ display: 'none', position: 'fixed', bottom: 0, left: 0, right: 0, background: '#FFF', padding: '10px 16px', borderTop: '1px solid #F0DDDD', boxShadow: '0 -4px 12px -2px rgba(0,0,0,0.05)', zIndex: 40 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 13, color: '#8a6a6a' }}>
             <span>{itens.length} {itens.length === 1 ? 'item' : 'itens'}</span>
