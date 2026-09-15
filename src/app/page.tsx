@@ -74,7 +74,7 @@ export default function HomeFlores() {
       {/* Hero */}
       <section style={{
         position: 'relative',
-        backgroundImage: 'linear-gradient(rgba(26,15,15,0.55), rgba(26,15,15,0.45)), url("https://lucsfucvurjqrtdbmnqb.supabase.co/storage/v1/render/image/public/landing-assets/ChatGPT%20Image%2015%20de%20set.%20de%202026,%2010_47_17.png?width=1600&quality=65")',
+        backgroundImage: 'linear-gradient(rgba(26,15,15,0.55), rgba(26,15,15,0.45)), url("https://lucsfucvurjqrtdbmnqb.supabase.co/storage/v1/render/image/public/landing-assets/ChatGPT%20Image%2015%20de%20set.%20de%202026,%2010_47_17.png?width=1200&quality=60")',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
@@ -152,7 +152,7 @@ export default function HomeFlores() {
             <LogoRosas height={44} />
           </div>
           <div style={{ marginTop: 20, fontSize: 12, color: '#888' }}>
-            © 2026 {NOME_LOJA} · Entrega de flores em todo o Brasil
+            © 2026 {NOME_LOJA} · Entrega expressa ou agendada
           </div>
         </div>
       </footer>
