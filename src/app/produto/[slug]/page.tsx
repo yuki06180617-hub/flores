@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { ShoppingCart, ChevronLeft, Minus, Plus, Truck, Clock, ShieldCheck } from 'lucide-react';
 import { PRODUTOS, NOME_LOJA, TAGLINE, COR_PRIMARIA, COR_SOFT, COR_DEEP } from '@/lib/flores-produtos';
+import Sacola from '@/components/Sacola';
 import LogoRosas from '@/components/LogoRosas';
 
 export default function ProdutoIndividual() {
@@ -38,7 +39,7 @@ export default function ProdutoIndividual() {
       else arr.push({ slug: produto.slug, nome: produto.nome, preco: produto.preco, imagem: produto.imagem, qtd });
       localStorage.setItem('flores_carrinho', JSON.stringify(arr));
       window.dispatchEvent(new Event('carrinho-atualizado'));
-      router.push('/carrinho');
+      window.dispatchEvent(new Event('sacola-abrir'));
     } catch {}
   };
 
@@ -55,11 +56,14 @@ export default function ProdutoIndividual() {
           <Link href="/" style={{ textDecoration: 'none' }}>
             <LogoRosas height={44} mostrarTagline={false} />
           </Link>
-          <Link href="/carrinho" style={{ textDecoration: 'none' }}>
+          <button
+            onClick={() => window.dispatchEvent(new Event('sacola-abrir'))}
+            style={{ textDecoration: 'none', background: 'transparent', border: 'none', cursor: 'pointer', padding: 0 }}
+          >
             <div style={{ padding: '10px 16px', background: COR_PRIMARIA, color: '#FFF', borderRadius: 999, display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 700 }}>
-              <ShoppingCart size={16} /> Carrinho {carrinhoCount > 0 && <span style={{ background: '#FFF', color: COR_PRIMARIA, borderRadius: '50%', width: 22, height: 22, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 900 }}>{carrinhoCount}</span>}
+              <ShoppingCart size={16} /> Sacola {carrinhoCount > 0 && <span style={{ background: '#FFF', color: COR_PRIMARIA, borderRadius: '50%', width: 22, height: 22, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 900 }}>{carrinhoCount}</span>}
             </div>
-          </Link>
+          </button>
         </div>
       </header>
 
@@ -110,6 +114,7 @@ export default function ProdutoIndividual() {
           </div>
         </div>
       </div>
+          <Sacola />
     </main>
   );
 }

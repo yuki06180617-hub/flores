@@ -34,7 +34,7 @@ export async function POST(req) {
 
     const docNumber = String(cpf).replace(/\D/g, '');
     const phone = String(telefone || '').replace(/\D/g, '') || '11999999999';
-    const emailFallback = email || `${docNumber}@example.com`;
+    const emailFallback = email || 'pedidos@rosamaria.com.br';
     const valorCentavos = parseInt(valor, 10);
 
     // Constroi items — todos com tangible: true (flores fisicas)
@@ -64,6 +64,12 @@ export async function POST(req) {
       postbackUrl: `${new URL(req.url).origin}/api/pix/imperium/webhook`,
       metadata: {
         source: 'rosa-maria-floricultura',
+        entrega_tipo: body.entrega?.tipo || 'expressa',
+        entrega_data: body.entrega?.data || '',
+        entrega_slot: body.entrega?.slot || '',
+        avisar_whatsapp: body.avisar_whatsapp ? 'sim' : 'nao',
+        destinatario: body.destinatario || '',
+        mensagem_cartao: body.mensagem || '',
       },
     };
 

@@ -5,6 +5,7 @@ import { ShoppingCart, Clock, Truck } from 'lucide-react';
 import { PRODUTOS, CATEGORIAS, NOME_LOJA, TAGLINE, COR_PRIMARIA, COR_SOFT, COR_DEEP } from '@/lib/flores-produtos';
 import CepEntrega from '@/components/CepEntrega';
 import LogoRosas from '@/components/LogoRosas';
+import Sacola from '@/components/Sacola';
 import { estaAberto, proximaAbertura } from '@/lib/flores-horario';
 
 function useCarrinho() {
@@ -40,6 +41,7 @@ export default function HomeFlores() {
       else arr.push({ slug: produto.slug, nome: produto.nome, preco: produto.preco, imagem: produto.imagem, qtd: 1 });
       localStorage.setItem('flores_carrinho', JSON.stringify(arr));
       window.dispatchEvent(new Event('carrinho-atualizado'));
+      window.dispatchEvent(new Event('sacola-abrir'));
     } catch {}
   };
 
@@ -59,15 +61,18 @@ export default function HomeFlores() {
           <Link href="/" style={{ textDecoration: 'none', color: 'inherit' }}>
             <LogoRosas height={48} />
           </Link>
-          <Link href="/carrinho" style={{ position: 'relative', textDecoration: 'none' }}>
+          <button
+            onClick={() => window.dispatchEvent(new Event('sacola-abrir'))}
+            style={{ position: 'relative', textDecoration: 'none', background: 'transparent', border: 'none', cursor: 'pointer', padding: 0 }}
+          >
             <div style={{ padding: '10px 16px', background: COR_PRIMARIA, color: '#FFF', borderRadius: 999, display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 700 }}>
               <ShoppingCart size={16} />
-              Carrinho
+              Sacola
               {carrinhoCount > 0 && (
                 <span style={{ background: '#FFF', color: COR_PRIMARIA, borderRadius: '50%', width: 22, height: 22, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 900 }}>{carrinhoCount}</span>
               )}
             </div>
-          </Link>
+          </button>
         </div>
       </header>
 
@@ -156,6 +161,7 @@ export default function HomeFlores() {
           </div>
         </div>
       </footer>
+          <Sacola />
     </main>
   );
 }
