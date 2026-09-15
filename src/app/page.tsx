@@ -87,7 +87,7 @@ export default function HomeFlores() {
             <Truck size={13} /> Entrega grátis · Receba em até 1h
           </div>
           <h1 style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 'clamp(36px, 5.5vw, 58px)', fontWeight: 500, margin: 0, letterSpacing: '-0.01em', lineHeight: 1.05, color: '#FFF', textShadow: '0 2px 20px rgba(0,0,0,0.4)' }}>
-            Flores frescas, entregues em <span style={{ fontStyle: 'italic', color: '#FFD4D4', fontWeight: 600 }}>até 1 hora</span>
+            Flores, Buquês, Combos e <span style={{ fontStyle: 'italic', color: '#FFD4D4', fontWeight: 600 }}>muito mais</span>
           </h1>
           <p style={{ fontSize: 17, color: 'rgba(255,255,255,0.92)', marginTop: 18, maxWidth: 580, marginLeft: 'auto', marginRight: 'auto', lineHeight: 1.6, textShadow: '0 1px 12px rgba(0,0,0,0.3)' }}>
             Buquês, cestas e presentes selecionados à mão. Entrega expressa ou agendada, com atendimento das 06:30 às 22:30 e possibilidade de hora marcada.
