@@ -123,9 +123,17 @@ export default function Sacola() {
         {/* Footer */}
         {itens.length > 0 && (
           <div style={{ padding: '18px 24px', borderTop: '1px solid #F0DDDD', background: '#FAFAF7' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2, fontSize: 13 }}>
+              <span style={{ color: '#888' }}>Subtotal</span>
+              <span style={{ color: '#888', textDecoration: 'line-through' }}>R$ {subtotal},00</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6, fontSize: 12, color: '#059669', fontWeight: 700 }}>
+              <span>Desconto PIX (13%)</span>
+              <span>− R$ {subtotal - precoComPix(subtotal)}</span>
+            </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4, fontSize: 14 }}>
-              <span style={{ color: '#555', fontWeight: 600 }}>Subtotal</span>
-              <span style={{ fontSize: 20, fontWeight: 900, color: COR_PRIMARIA }}>R$ {subtotal},00</span>
+              <span style={{ color: '#1a0f0f', fontWeight: 800 }}>Total no PIX</span>
+              <span style={{ fontSize: 22, fontWeight: 900, color: '#059669' }}>R$ {precoComPix(subtotal)}</span>
             </div>
             <div style={{ fontSize: 11, color: '#8a6a6a', marginBottom: 14 }}>
               Frete e agendamento na próxima etapa.
