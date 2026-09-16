@@ -47,6 +47,7 @@ export default function HomeFlores() {
 
   return (
     <main style={{ minHeight: '100vh', background: '#FFF', fontFamily: "'Inter', system-ui, sans-serif", color: '#111' }}>
+      <link rel="preload" as="image" href="https://lucsfucvurjqrtdbmnqb.supabase.co/storage/v1/render/image/public/landing-assets/ChatGPT%20Image%2015%20de%20set.%20de%202026,%2010_47_17.png?width=800&quality=50&format=webp" fetchPriority="high" />
       <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Great+Vibes&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet" />
 
       {/* Topbar */}
@@ -79,7 +80,8 @@ export default function HomeFlores() {
       {/* Hero */}
       <section style={{
         position: 'relative',
-        backgroundImage: 'linear-gradient(rgba(26,15,15,0.55), rgba(26,15,15,0.45)), url("https://lucsfucvurjqrtdbmnqb.supabase.co/storage/v1/render/image/public/landing-assets/ChatGPT%20Image%2015%20de%20set.%20de%202026,%2010_47_17.png?width=1200&quality=60")',
+        backgroundColor: '#3a1f1f',
+        backgroundImage: 'linear-gradient(rgba(26,15,15,0.55), rgba(26,15,15,0.45)), url("https://lucsfucvurjqrtdbmnqb.supabase.co/storage/v1/render/image/public/landing-assets/ChatGPT%20Image%2015%20de%20set.%20de%202026,%2010_47_17.png?width=800&quality=50&format=webp")',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
