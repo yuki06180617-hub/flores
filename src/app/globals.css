@@ -4,3 +4,19 @@
 
 * { box-sizing: border-box; }
 html, body { padding: 0; margin: 0; font-family: system-ui, -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
+
+/* Evita zoom em inputs no iOS Safari (fonte >= 16px) */
+input, select, textarea, button {
+  font-size: 16px !important;
+}
+
+/* Melhora rendering em mobile */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* Impede zoom em touch de duplo tap */
+* {
+  touch-action: manipulation;
+}

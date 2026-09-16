@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { X, Trash2, ShoppingBag } from 'lucide-react';
-import { COR_PRIMARIA, COR_SOFT } from '@/lib/flores-produtos';
+import { COR_PRIMARIA, COR_SOFT, precoComPix } from '@/lib/flores-produtos';
 
 type Item = { slug: string; nome: string; preco: number; imagem: string; qtd: number };
 
