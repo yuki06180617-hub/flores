@@ -3,7 +3,7 @@ import { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { CheckCircle2 } from 'lucide-react';
-import { NOME_LOJA, COR_PRIMARIA } from '@/lib/flores-produtos';
+import { NOME_LOJA, COR_PRIMARIA, precoComPix } from '@/lib/flores-produtos';
 import LogoRosas from '@/components/LogoRosas';
 
 const GREEN = '#059669';
@@ -61,8 +61,14 @@ function Content() {
                 </div>
               ))}
               <div style={{ height: 1, background: '#F0DDDD', margin: '10px 0' }} />
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 15, fontWeight: 800, color: COR_PRIMARIA }}>
-                <span>Total</span><span>R$ {pedido.total},00</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#888', marginBottom: 3 }}>
+                <span>Subtotal</span><span style={{ textDecoration: 'line-through' }}>R$ {pedido.total},00</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#059669', fontWeight: 700, marginBottom: 8 }}>
+                <span>Desconto PIX (13%)</span><span>− R$ {pedido.total - precoComPix(pedido.total)}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 16, fontWeight: 900, color: '#059669' }}>
+                <span>Pago no PIX</span><span>R$ {precoComPix(pedido.total)}</span>
               </div>
             </div>
           )}

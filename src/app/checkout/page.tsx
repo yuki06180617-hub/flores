@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ChevronLeft, ShoppingCart, CreditCard, Lock, ShieldCheck, Truck, Calendar, Bell, User, MapPin, CheckCircle2, Loader2, AlertCircle } from 'lucide-react';
-import { NOME_LOJA, COR_PRIMARIA, COR_SOFT } from '@/lib/flores-produtos';
+import { NOME_LOJA, COR_PRIMARIA, COR_SOFT, precoComPix } from '@/lib/flores-produtos';
 import { proximosDiasComSlots } from '@/lib/flores-entrega';
 import LogoRosas from '@/components/LogoRosas';
 
@@ -68,6 +68,8 @@ export default function CheckoutPage() {
   }, [entregaTipo, diasSlots, entregaData]);
 
   const total = itens.reduce((s, i) => s + i.preco * i.qtd, 0);
+  const totalPix = precoComPix(total);
+  const descontoValor = total - totalPix;
 
   const formatarCPF = (v: string) => v.replace(/\D/g, '').slice(0, 11).replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d{1,2})$/, '$1-$2');
   const formatarTel = (v: string) => v.replace(/\D/g, '').slice(0, 11).replace(/(\d{2})(\d)/, '($1) $2').replace(/(\d{5})(\d)/, '$1-$2');
@@ -153,7 +155,7 @@ export default function CheckoutPage() {
       const pedidoInfo = { dados, itens, total, entrega: { tipo: entregaTipo, data: entregaData, slot: entregaSlot }, avisar_whatsapp: avisar };
       localStorage.setItem('flores_pedido', JSON.stringify(pedidoInfo));
 
-      const valorCentavos = total * 100;
+      const valorCentavos = (metodo === 'pix' ? totalPix : total) * 100;
       const resp = await fetch('/api/pix/imperium', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -545,7 +547,7 @@ export default function CheckoutPage() {
                 </button>
               ) : (
                 <button onClick={gerarPix} disabled={gerando} style={{ width: '100%', padding: '16px', background: gerando ? '#999' : COR_PRIMARIA, color: '#FFF', border: 'none', borderRadius: 10, fontSize: 15, fontWeight: 800, cursor: gerando ? 'wait' : 'pointer' }}>
-                  {gerando ? 'Gerando PIX...' : `Pagar R$ ${total},00 com PIX`}
+                  {gerando ? 'Gerando PIX...' : `Pagar R$ ${totalPix} no PIX`}
                 </button>
               )}
               <button onClick={voltar} style={{ width: '100%', padding: '13px', background: 'transparent', color: '#666', border: '1px solid #E5E5E5', borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
@@ -577,11 +579,14 @@ export default function CheckoutPage() {
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 13, color: '#555' }}>
                 <span>Subtotal</span><span>R$ {total},00</span>
               </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 13, color: GREEN, fontWeight: 700 }}>
+                <span>Desconto PIX (13%)</span><span>− R$ {descontoValor}</span>
+              </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 14, fontSize: 13, color: GREEN, fontWeight: 700 }}>
                 <span>Entrega</span><span>Grátis</span>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 18, fontWeight: 900, color: COR_PRIMARIA }}>
-                <span>Total</span><span>R$ {total},00</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 18, fontWeight: 900, color: GREEN }}>
+                <span>Total no PIX</span><span>R$ {totalPix}</span>
               </div>
             </div>
           </div>
@@ -591,7 +596,10 @@ export default function CheckoutPage() {
         <div className="resumo-mobile" style={{ display: 'none', position: 'fixed', bottom: 0, left: 0, right: 0, background: '#FFF', padding: '10px 16px', borderTop: '1px solid #F0DDDD', boxShadow: '0 -4px 12px -2px rgba(0,0,0,0.05)', zIndex: 40 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 13, color: '#8a6a6a' }}>
             <span>{itens.length} {itens.length === 1 ? 'item' : 'itens'}</span>
-            <span style={{ fontSize: 16, fontWeight: 900, color: COR_PRIMARIA }}>R$ {total},00</span>
+            <div style={{ textAlign: 'right' }}>
+              <div style={{ fontSize: 11, color: '#999', textDecoration: 'line-through' }}>R$ {total}</div>
+              <div style={{ fontSize: 16, fontWeight: 900, color: '#059669' }}>R$ {totalPix} no PIX</div>
+            </div>
           </div>
         </div>
       </div>

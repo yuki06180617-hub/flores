@@ -38,14 +38,32 @@ export async function POST(req) {
     const valorCentavos = parseInt(valor, 10);
 
     // Constroi items — todos com tangible: true (flores fisicas)
+    // Calcula soma dos items (preco original) pra ajustar proporcionalmente ao valorCentavos
+    // Isso garante que a soma de items[i].unitPrice * quantity == amount
+    // (mesmo com desconto PIX aplicado)
+    const somaOriginal = Array.isArray(items) && items.length > 0
+      ? items.reduce((s, i) => s + (parseInt((i.preco || 0) * 100, 10) * parseInt(i.qtd || i.quantity || 1, 10)), 0)
+      : valorCentavos;
+
+    const fator = somaOriginal > 0 ? valorCentavos / somaOriginal : 1;
+
     const impItems = Array.isArray(items) && items.length > 0
       ? items.map((i) => ({
           title: (i.nome || i.title || 'Produto').slice(0, 100),
-          unitPrice: parseInt((i.preco || 0) * 100, 10) || valorCentavos,
+          unitPrice: Math.round(parseInt((i.preco || 0) * 100, 10) * fator) || valorCentavos,
           quantity: parseInt(i.qtd || i.quantity || 1, 10),
           tangible: true,
         }))
       : [{ title: 'Pedido Rosa Maria', unitPrice: valorCentavos, quantity: 1, tangible: true }];
+
+    // Corrige diferenca de arredondamento no ultimo item pra bater exato com amount
+    if (impItems.length > 0) {
+      const somaFinal = impItems.reduce((s, i) => s + i.unitPrice * i.quantity, 0);
+      const diff = valorCentavos - somaFinal;
+      if (diff !== 0) {
+        impItems[impItems.length - 1].unitPrice += Math.round(diff / impItems[impItems.length - 1].quantity);
+      }
+    }
 
     // Body seguindo docs oficiais
     const impBody = {
