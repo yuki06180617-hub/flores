@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ShoppingCart, Clock, Truck } from 'lucide-react';
-import { PRODUTOS, CATEGORIAS, NOME_LOJA, TAGLINE, COR_PRIMARIA, COR_SOFT, COR_DEEP } from '@/lib/flores-produtos';
+import { PRODUTOS, CATEGORIAS, NOME_LOJA, TAGLINE, COR_PRIMARIA, COR_SOFT, COR_DEEP, precoComPix } from '@/lib/flores-produtos';
 import CepEntrega from '@/components/CepEntrega';
 import LogoRosas from '@/components/LogoRosas';
 import Sacola from '@/components/Sacola';
@@ -138,7 +138,13 @@ export default function HomeFlores() {
                 </div>
                 <div style={{ padding: 16 }}>
                   <div style={{ fontSize: 14, fontWeight: 700, color: '#111', marginBottom: 8, lineHeight: 1.3, minHeight: 36 }}>{p.nome}</div>
-                  <div style={{ fontSize: 20, fontWeight: 900, color: COR_PRIMARIA, marginBottom: 10 }}>R$ {p.preco},00</div>
+                  <div style={{ marginBottom: 10 }}>
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
+                      <span style={{ fontSize: 13, color: '#999', textDecoration: 'line-through', fontWeight: 500 }}>R$ {p.preco}</span>
+                      <span style={{ fontSize: 20, fontWeight: 900, color: '#059669' }}>R$ {precoComPix(p.preco)}</span>
+                    </div>
+                    <div style={{ fontSize: 11, color: '#059669', fontWeight: 700, marginTop: 2 }}>13% off no PIX</div>
+                  </div>
                 </div>
               </Link>
               <button
