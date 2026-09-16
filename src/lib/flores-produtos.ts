@@ -50,3 +50,11 @@ export const TAGLINE = 'Atelier Botânico e Floricultura';
 export const COR_PRIMARIA = '#DC2626'; // Vermelho vibrante
 export const COR_SOFT = '#FEE2E2';
 export const COR_DEEP = '#991B1B';
+
+// Desconto ao pagar via PIX (13% off no total)
+export const DESCONTO_PIX = 0.13;
+
+// Helper: calcula preco com desconto PIX (arredondado pra inteiro)
+export function precoComPix(preco: number): number {
+  return Math.round(preco * (1 - DESCONTO_PIX));
+}
