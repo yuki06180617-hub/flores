@@ -6,7 +6,6 @@ import { PRODUTOS, CATEGORIAS, NOME_LOJA, TAGLINE, COR_PRIMARIA, COR_SOFT, COR_D
 import CepEntrega from '@/components/CepEntrega';
 import LogoRosas from '@/components/LogoRosas';
 import Sacola from '@/components/Sacola';
-import PromodayBanner from '@/components/PromodayBanner';
 import { estaAberto, proximaAbertura } from '@/lib/flores-horario';
 
 function useCarrinho() {
@@ -31,7 +30,13 @@ export default function HomeFlores() {
   const [filtro, setFiltro] = useState<string>('todos');
   const carrinhoCount = useCarrinho();
 
-  const produtosFiltrados = filtro === 'todos' ? PRODUTOS : PRODUTOS.filter(p => p.categoria === filtro);
+  const produtosFiltradosBase = filtro === 'todos' ? PRODUTOS : PRODUTOS.filter(p => p.categoria === filtro);
+  // Promoday sempre primeiro
+  const produtosFiltrados = [...produtosFiltradosBase].sort((a, b) => {
+    if (a.precoPromoday && !b.precoPromoday) return -1;
+    if (!a.precoPromoday && b.precoPromoday) return 1;
+    return 0;
+  });
 
   const adicionar = (produto: any) => {
     try {
@@ -127,9 +132,6 @@ export default function HomeFlores() {
           <span style={{ fontSize: 13, color: '#999', fontWeight: 500, marginLeft: 8 }}>({produtosFiltrados.length} produtos)</span>
         </h2>
 
-        {/* Banner PROMODAY */}
-        <PromodayBanner onAdicionar={adicionar} />
-
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 20 }}>
           {produtosFiltrados.map((p) => (
             <div key={p.slug} style={{ background: '#FFF', borderRadius: 14, overflow: 'hidden', border: '1px solid #F1E4E4', transition: 'transform 0.2s, box-shadow 0.2s', cursor: 'pointer' }}
@@ -139,6 +141,16 @@ export default function HomeFlores() {
               <Link href={`/produto/${p.slug}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                 <div style={{ position: 'relative', width: '100%', paddingTop: '100%', background: COR_SOFT }}>
                   <img src={p.imagem} alt={p.nome} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+                  {p.precoPromoday && (
+                    <div style={{ position: 'absolute', top: 10, left: 10, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                      <div style={{ background: '#1a0f0f', color: '#FFB020', padding: '4px 10px', borderRadius: 999, fontSize: 10, fontWeight: 900, letterSpacing: '0.1em', border: '1px solid rgba(255,176,32,0.4)', boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }}>
+                        🔥 PROMODAY
+                      </div>
+                      <div style={{ background: COR_PRIMARIA, color: '#FFF', padding: '3px 10px', borderRadius: 6, fontSize: 12, fontWeight: 900, letterSpacing: '-0.02em', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', width: 'fit-content' }}>
+                        −{percentualDesconto(p.preco, p.precoPromoday)}%
+                      </div>
+                    </div>
+                  )}
                 </div>
                 <div style={{ padding: 16 }}>
                   <div style={{ fontSize: 14, fontWeight: 700, color: '#111', marginBottom: 8, lineHeight: 1.3, minHeight: 36 }}>{p.nome}</div>
