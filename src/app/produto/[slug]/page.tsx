@@ -79,7 +79,17 @@ export default function ProdutoIndividual() {
 
           <div>
             <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: 32, fontWeight: 900, margin: 0, lineHeight: 1.15, letterSpacing: '-0.02em' }}>{produto.nome}</h1>
-            <div style={{ fontSize: 36, fontWeight: 900, color: COR_PRIMARIA, marginTop: 16 }}>R$ {produto.preco},00</div>
+            <div style={{ marginTop: 16 }}>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, flexWrap: 'wrap' }}>
+                <span style={{ fontSize: 20, color: '#999', textDecoration: 'line-through', fontWeight: 500 }}>R$ {produto.preco},00</span>
+                <span style={{ fontSize: 36, fontWeight: 900, color: '#059669', letterSpacing: '-0.02em' }}>R$ {precoFinalPix(produto)}</span>
+              </div>
+              <div style={{ fontSize: 13, color: '#059669', fontWeight: 700, marginTop: 4 }}>
+                {produto.precoPromoday
+                  ? `PROMODAY · ${percentualDesconto(produto.preco, produto.precoPromoday)}% de desconto no PIX`
+                  : '13% de desconto pagando no PIX'}
+              </div>
+            </div>
 
             <div style={{ marginTop: 24, padding: 16, background: '#F9FAFB', borderRadius: 10 }}>
               <div style={{ fontSize: 13, color: '#555', lineHeight: 1.6 }}>
@@ -97,7 +107,7 @@ export default function ProdutoIndividual() {
             </div>
 
             <button onClick={adicionar} style={{ width: '100%', marginTop: 24, padding: '16px', background: COR_PRIMARIA, color: '#FFF', border: 'none', borderRadius: 12, fontSize: 15, fontWeight: 800, cursor: 'pointer' }}>
-              Adicionar ao carrinho · R$ {produto.preco * qtd},00
+              Adicionar ao carrinho · R$ {precoFinalPix(produto) * qtd} no PIX
             </button>
 
             <div style={{ marginTop: 24, display: 'grid', gap: 10 }}>
