@@ -79,6 +79,10 @@ export default function ProdutoIndividual() {
 
           <div>
             <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: 32, fontWeight: 900, margin: 0, lineHeight: 1.15, letterSpacing: '-0.02em' }}>{produto.nome}</h1>
+
+            <div style={{ fontSize: 12, color: '#059669', fontWeight: 700, marginTop: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ display: 'inline-flex', width: 8, height: 8, borderRadius: '50%', background: '#059669' }} /> Disponível · Pronta entrega
+            </div>
             <div style={{ marginTop: 16 }}>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, flexWrap: 'wrap' }}>
                 <span style={{ fontSize: 20, color: '#999', textDecoration: 'line-through', fontWeight: 500 }}>R$ {produto.preco},00</span>

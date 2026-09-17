@@ -110,7 +110,10 @@ export default function CestasCafeManhaPage() {
                   <img src={p.imagem} alt={p.nome} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
                 </div>
                 <div style={{ padding: '16px 16px 0' }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: '#1a0f0f', marginBottom: 10, lineHeight: 1.3, minHeight: 34, cursor: 'pointer' }}>{p.nome}</div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#1a0f0f', marginBottom: 6, lineHeight: 1.3, minHeight: 34, cursor: 'pointer' }}>{p.nome}</div>
+                  <div style={{ fontSize: 11, color: '#059669', fontWeight: 700, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ display: 'inline-flex', width: 6, height: 6, borderRadius: '50%', background: '#059669' }} /> Disponível · Pronta entrega
+                  </div>
                   <div style={{ fontSize: 22, fontWeight: 900, color: COR_PRIMARIA, marginBottom: 12, letterSpacing: '-0.02em' }}>R$ {p.preco},00</div>
                 </div>
               </Link>

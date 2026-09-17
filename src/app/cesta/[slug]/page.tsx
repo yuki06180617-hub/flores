@@ -93,6 +93,10 @@ export default function CestaIndividual() {
 
             <h1 style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 30, fontWeight: 600, margin: 0, lineHeight: 1.15, letterSpacing: '-0.02em', color: '#1a0f0f' }}>{produto.nome}</h1>
 
+            <div style={{ fontSize: 12, color: '#059669', fontWeight: 700, marginTop: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ display: 'inline-flex', width: 8, height: 8, borderRadius: '50%', background: '#059669' }} /> Disponível · Pronta entrega
+            </div>
+
             <div style={{ fontSize: 36, fontWeight: 900, color: COR_PRIMARIA, marginTop: 16, letterSpacing: '-0.02em' }}>R$ {produto.preco},00</div>
 
             <CepEntrega />

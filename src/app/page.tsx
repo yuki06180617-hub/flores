@@ -153,7 +153,10 @@ export default function HomeFlores() {
                   )}
                 </div>
                 <div style={{ padding: 16 }}>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: '#111', marginBottom: 8, lineHeight: 1.3, minHeight: 36 }}>{p.nome}</div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: '#111', marginBottom: 6, lineHeight: 1.3, minHeight: 36 }}>{p.nome}</div>
+                  <div style={{ fontSize: 11, color: '#059669', fontWeight: 700, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ display: 'inline-flex', width: 6, height: 6, borderRadius: '50%', background: '#059669' }} /> Disponível · Pronta entrega
+                  </div>
                   <div style={{ marginBottom: 10 }}>
                     <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
                       <span style={{ fontSize: 13, color: '#999', textDecoration: 'line-through', fontWeight: 500 }}>R$ {p.preco}</span>
