@@ -108,9 +108,6 @@ export default function HomeFlores() {
         <CepEntrega />
       </section>
 
-      {/* Banner PROMODAY */}
-      <PromodayBanner onAdicionar={adicionar} />
-
       {/* Filtros de categoria */}
       <section style={{ maxWidth: 1200, margin: '0 auto', padding: '0 20px 24px', display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center' }}>
         <button onClick={() => setFiltro('todos')} style={{ padding: '10px 18px', border: `1.5px solid ${filtro === 'todos' ? COR_PRIMARIA : '#E5E5E5'}`, background: filtro === 'todos' ? COR_PRIMARIA : '#FFF', color: filtro === 'todos' ? '#FFF' : '#555', borderRadius: 999, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
@@ -129,6 +126,9 @@ export default function HomeFlores() {
           {filtro === 'todos' ? 'Mais pedidos' : CATEGORIAS[filtro as keyof typeof CATEGORIAS]}
           <span style={{ fontSize: 13, color: '#999', fontWeight: 500, marginLeft: 8 }}>({produtosFiltrados.length} produtos)</span>
         </h2>
+
+        {/* Banner PROMODAY */}
+        <PromodayBanner onAdicionar={adicionar} />
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 20 }}>
           {produtosFiltrados.map((p) => (
