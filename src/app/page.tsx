@@ -163,6 +163,16 @@ export default function HomeFlores() {
                       {p.precoPromoday ? `${percentualDesconto(p.preco, p.precoPromoday)}% off · PROMODAY` : '13% off no PIX'}
                     </div>
                   </div>
+                  {p.precoPromoday && (
+                    <div style={{ display: 'flex', gap: 6, marginBottom: 10, flexWrap: 'wrap' }}>
+                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: 3, background: '#FEF3C7', color: '#92400E', padding: '3px 8px', borderRadius: 6, fontSize: 10, fontWeight: 800, letterSpacing: '0.02em' }}>
+                        🔥 17 vendidos hoje
+                      </div>
+                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: 3, background: '#FEE2E2', color: '#991B1B', padding: '3px 8px', borderRadius: 6, fontSize: 10, fontWeight: 800, letterSpacing: '0.02em', border: '1px solid #FCA5A5' }}>
+                        ⚠️ 2 und restantes
+                      </div>
+                    </div>
+                  )}
                 </div>
               </Link>
               <button
