@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ShoppingCart, Clock, Coffee } from 'lucide-react';
-import { CESTAS } from '@/lib/flores-cestas';
+import { CESTAS, precoFinalCesta, percentualDescontoCesta } from '@/lib/flores-cestas';
 import { COR_PRIMARIA, COR_SOFT, COR_DEEP, NOME_LOJA } from '@/lib/flores-produtos';
 import Sacola from '@/components/Sacola';
 import LogoRosas from '@/components/LogoRosas';
@@ -37,7 +37,7 @@ export default function CestasCafeManhaPage() {
       const arr = raw ? JSON.parse(raw) : [];
       const existe = arr.find((i: any) => i.slug === produto.slug);
       if (existe) existe.qtd += 1;
-      else arr.push({ slug: produto.slug, nome: produto.nome, preco: produto.preco, imagem: produto.imagem, qtd: 1 });
+      else arr.push({ slug: produto.slug, nome: produto.nome, preco: precoFinalCesta(produto), imagem: produto.imagem, qtd: 1 });
       localStorage.setItem('flores_carrinho', JSON.stringify(arr));
       window.dispatchEvent(new Event('carrinho-atualizado'));
       window.dispatchEvent(new Event('sacola-abrir'));
@@ -98,7 +98,7 @@ export default function CestasCafeManhaPage() {
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 20 }}>
-          {CESTAS.map((p) => (
+          {[...CESTAS].sort((a, b) => (a.precoPromoday && !b.precoPromoday ? -1 : !a.precoPromoday && b.precoPromoday ? 1 : 0)).map((p) => (
             <div
               key={p.slug}
               style={{ background: '#FFF', borderRadius: 14, overflow: 'hidden', border: '1px solid #F1E4E4', transition: 'transform 0.2s, box-shadow 0.2s' }}
@@ -108,13 +108,41 @@ export default function CestasCafeManhaPage() {
               <Link href={`/cesta/${p.slug}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                 <div style={{ position: 'relative', width: '100%', paddingTop: '100%', background: '#FAFAF7', cursor: 'pointer' }}>
                   <img src={p.imagem} alt={p.nome} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+                  {p.precoPromoday && (
+                    <div style={{ position: 'absolute', top: 10, left: 10, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                      <div style={{ background: '#1a0f0f', color: '#FFB020', padding: '4px 10px', borderRadius: 999, fontSize: 10, fontWeight: 900, letterSpacing: '0.1em', border: '1px solid rgba(255,176,32,0.4)', boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }}>
+                        🔥 PROMODAY
+                      </div>
+                      <div style={{ background: COR_PRIMARIA, color: '#FFF', padding: '3px 10px', borderRadius: 6, fontSize: 12, fontWeight: 900, letterSpacing: '-0.02em', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', width: 'fit-content' }}>
+                        −{percentualDescontoCesta(p)}%
+                      </div>
+                    </div>
+                  )}
                 </div>
                 <div style={{ padding: '16px 16px 0' }}>
                   <div style={{ fontSize: 13, fontWeight: 700, color: '#1a0f0f', marginBottom: 6, lineHeight: 1.3, minHeight: 34, cursor: 'pointer' }}>{p.nome}</div>
                   <div style={{ fontSize: 11, color: '#059669', fontWeight: 700, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
                     <span style={{ display: 'inline-flex', width: 6, height: 6, borderRadius: '50%', background: '#059669' }} /> Disponível · Pronta entrega
                   </div>
-                  <div style={{ fontSize: 22, fontWeight: 900, color: COR_PRIMARIA, marginBottom: 12, letterSpacing: '-0.02em' }}>R$ {p.preco},00</div>
+                  {p.precoPromoday ? (
+                    <>
+                      <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginBottom: 3 }}>
+                        <span style={{ fontSize: 13, color: '#999', textDecoration: 'line-through', fontWeight: 500 }}>R$ {p.preco}</span>
+                        <span style={{ fontSize: 22, fontWeight: 900, color: '#059669', letterSpacing: '-0.02em' }}>R$ {p.precoPromoday}</span>
+                      </div>
+                      <div style={{ fontSize: 11, color: '#059669', fontWeight: 700, marginBottom: 8 }}>{percentualDescontoCesta(p)}% off · PROMODAY</div>
+                      <div style={{ display: 'flex', gap: 6, marginBottom: 12, flexWrap: 'wrap' }}>
+                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 3, background: '#FEF3C7', color: '#92400E', padding: '3px 8px', borderRadius: 6, fontSize: 10, fontWeight: 800, letterSpacing: '0.02em' }}>
+                          🔥 8 vendidos hoje
+                        </div>
+                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 3, background: '#FEE2E2', color: '#991B1B', padding: '3px 8px', borderRadius: 6, fontSize: 10, fontWeight: 800, letterSpacing: '0.02em', border: '1px solid #FCA5A5' }}>
+                          ⚠️ 3 und restantes
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <div style={{ fontSize: 22, fontWeight: 900, color: COR_PRIMARIA, marginBottom: 12, letterSpacing: '-0.02em' }}>R$ {p.preco},00</div>
+                  )}
                 </div>
               </Link>
               <div style={{ padding: '0 16px 16px', display: 'grid', gap: 8 }}>

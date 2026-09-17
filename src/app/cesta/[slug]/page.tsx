@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { ShoppingCart, ChevronLeft, Minus, Plus, Truck, Clock, ShieldCheck, Coffee } from 'lucide-react';
-import { CESTAS } from '@/lib/flores-cestas';
+import { CESTAS, precoFinalCesta, percentualDescontoCesta } from '@/lib/flores-cestas';
 import { COR_PRIMARIA, COR_SOFT, COR_DEEP, NOME_LOJA } from '@/lib/flores-produtos';
 import Sacola from '@/components/Sacola';
 import CepEntrega from '@/components/CepEntrega';
@@ -43,7 +43,7 @@ export default function CestaIndividual() {
       const arr = raw ? JSON.parse(raw) : [];
       const existe = arr.find((i: any) => i.slug === produto.slug);
       if (existe) existe.qtd += qtd;
-      else arr.push({ slug: produto.slug, nome: produto.nome, preco: produto.preco, imagem: produto.imagem, qtd });
+      else arr.push({ slug: produto.slug, nome: produto.nome, preco: precoFinalCesta(produto), imagem: produto.imagem, qtd });
       localStorage.setItem('flores_carrinho', JSON.stringify(arr));
       window.dispatchEvent(new Event('carrinho-atualizado'));
       window.dispatchEvent(new Event('sacola-abrir'));
@@ -97,7 +97,25 @@ export default function CestaIndividual() {
               <span style={{ display: 'inline-flex', width: 8, height: 8, borderRadius: '50%', background: '#059669' }} /> Disponível · Pronta entrega
             </div>
 
-            <div style={{ fontSize: 36, fontWeight: 900, color: COR_PRIMARIA, marginTop: 16, letterSpacing: '-0.02em' }}>R$ {produto.preco},00</div>
+            {produto.precoPromoday ? (
+              <div style={{ marginTop: 16 }}>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, flexWrap: 'wrap' }}>
+                  <span style={{ fontSize: 20, color: '#999', textDecoration: 'line-through', fontWeight: 500 }}>R$ {produto.preco},00</span>
+                  <span style={{ fontSize: 36, fontWeight: 900, color: '#059669', letterSpacing: '-0.02em' }}>R$ {produto.precoPromoday}</span>
+                </div>
+                <div style={{ fontSize: 13, color: '#059669', fontWeight: 700, marginTop: 4 }}>PROMODAY · {percentualDescontoCesta(produto)}% de desconto</div>
+                <div style={{ display: 'flex', gap: 6, marginTop: 10, flexWrap: 'wrap' }}>
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 3, background: '#FEF3C7', color: '#92400E', padding: '4px 10px', borderRadius: 6, fontSize: 11, fontWeight: 800 }}>
+                    🔥 8 vendidos hoje
+                  </div>
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 3, background: '#FEE2E2', color: '#991B1B', padding: '4px 10px', borderRadius: 6, fontSize: 11, fontWeight: 800, border: '1px solid #FCA5A5' }}>
+                    ⚠️ 3 und restantes
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div style={{ fontSize: 36, fontWeight: 900, color: COR_PRIMARIA, marginTop: 16, letterSpacing: '-0.02em' }}>R$ {produto.preco},00</div>
+            )}
 
             <CepEntrega />
 
@@ -135,7 +153,7 @@ export default function CestaIndividual() {
             </div>
 
             <button onClick={adicionar} style={{ width: '100%', marginTop: 24, padding: '16px', background: COR_PRIMARIA, color: '#FFF', border: 'none', borderRadius: 12, fontSize: 15, fontWeight: 800, cursor: 'pointer' }}>
-              Adicionar ao carrinho · R$ {produto.preco * qtd},00
+              Adicionar ao carrinho · R$ {precoFinalCesta(produto) * qtd}
             </button>
 
             <div style={{ marginTop: 24, display: 'grid', gap: 10 }}>
