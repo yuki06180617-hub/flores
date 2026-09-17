@@ -101,16 +101,20 @@ export default function CestasCafeManhaPage() {
           {CESTAS.map((p) => (
             <div
               key={p.slug}
-              style={{ background: '#FFF', borderRadius: 14, overflow: 'hidden', border: '1px solid #F1E4E4', transition: 'transform 0.2s, box-shadow 0.2s', cursor: 'pointer' }}
+              style={{ background: '#FFF', borderRadius: 14, overflow: 'hidden', border: '1px solid #F1E4E4', transition: 'transform 0.2s, box-shadow 0.2s' }}
               onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 12px 32px -8px rgba(220,38,38,0.15)'; }}
               onMouseLeave={(e) => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = ''; }}
             >
-              <div style={{ position: 'relative', width: '100%', paddingTop: '100%', background: '#FAFAF7' }}>
-                <img src={p.imagem} alt={p.nome} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
-              </div>
-              <div style={{ padding: 16 }}>
-                <div style={{ fontSize: 13, fontWeight: 700, color: '#1a0f0f', marginBottom: 10, lineHeight: 1.3, minHeight: 34 }}>{p.nome}</div>
-                <div style={{ fontSize: 22, fontWeight: 900, color: COR_PRIMARIA, marginBottom: 12, letterSpacing: '-0.02em' }}>R$ {p.preco},00</div>
+              <Link href={`/cesta/${p.slug}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                <div style={{ position: 'relative', width: '100%', paddingTop: '100%', background: '#FAFAF7', cursor: 'pointer' }}>
+                  <img src={p.imagem} alt={p.nome} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+                </div>
+                <div style={{ padding: '16px 16px 0' }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#1a0f0f', marginBottom: 10, lineHeight: 1.3, minHeight: 34, cursor: 'pointer' }}>{p.nome}</div>
+                  <div style={{ fontSize: 22, fontWeight: 900, color: COR_PRIMARIA, marginBottom: 12, letterSpacing: '-0.02em' }}>R$ {p.preco},00</div>
+                </div>
+              </Link>
+              <div style={{ padding: '0 16px 16px' }}>
                 <button
                   onClick={() => adicionar(p)}
                   style={{ display: 'block', width: '100%', padding: '10px', background: '#FFF', color: COR_PRIMARIA, border: `1.5px solid ${COR_PRIMARIA}`, borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}
