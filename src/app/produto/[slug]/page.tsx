@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { ShoppingCart, ChevronLeft, Minus, Plus, Truck, Clock, ShieldCheck } from 'lucide-react';
-import { PRODUTOS, NOME_LOJA, TAGLINE, COR_PRIMARIA, COR_SOFT, COR_DEEP } from '@/lib/flores-produtos';
+import { PRODUTOS, NOME_LOJA, TAGLINE, COR_PRIMARIA, COR_SOFT, COR_DEEP, precoFinalPix, percentualDesconto } from '@/lib/flores-produtos';
 import Sacola from '@/components/Sacola';
 import LogoRosas from '@/components/LogoRosas';
 

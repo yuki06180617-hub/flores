@@ -5,6 +5,8 @@ export type Produto = {
   categoria: 'buques' | 'cestas' | 'combos' | 'presentes';
   imagem: string;
   descricao?: string;
+  // Promoday: quando setado, sobrescreve o preco PIX (aparece de/por)
+  precoPromoday?: number;
 };
 
 // URLs de imagens do site original (funcionam como CDN externa)
@@ -33,7 +35,7 @@ export const PRODUTOS: Produto[] = [
   { slug: '12-rosas-com-ferrero-rocher-e-pelucia', nome: '12 Rosas Com Ferrero Rocher E Pelúcia', preco: 160, categoria: 'combos', imagem: 'https://floriculturarosas.site/__l5e/assets-v1/465b3fbf-7c42-4e32-b704-6dcef0b7ac31/12-rosas-com-ferrero-rocher-e-pelucia-0-detail.webp' },
   { slug: 'buque-de-5-girassois', nome: 'Buquê De 5 Girassóis', preco: 70, categoria: 'buques', imagem: 'https://floriculturarosas.site/__l5e/assets-v1/59cdd836-f46b-4083-b943-257ac9e02c93/buque-de-5-girassois-0-detail.webp' },
   { slug: 'buque-amore', nome: 'Buquê Amore', preco: 90, categoria: 'buques', imagem: 'https://floriculturarosas.site/__l5e/assets-v1/9ce8bef7-ff55-46e4-9c92-876c9177be98/buque-amore-0-detail.webp' },
-  { slug: '6-rosas-com-ferrero-rocher-e-pelucia', nome: '6 Rosas Com Ferrero Rocher E Pelúcia', preco: 150, categoria: 'combos', imagem: 'https://floriculturarosas.site/__l5e/assets-v1/1aa54777-1ca0-4485-9626-ebc807b79f17/6-rosas-com-ferrero-rocher-e-pelucia-0-detail.webp' },
+  { slug: '6-rosas-com-ferrero-rocher-e-pelucia', nome: '6 Rosas Com Ferrero Rocher E Pelúcia', preco: 150, precoPromoday: 72, categoria: 'combos', imagem: 'https://floriculturarosas.site/__l5e/assets-v1/1aa54777-1ca0-4485-9626-ebc807b79f17/6-rosas-com-ferrero-rocher-e-pelucia-0-detail.webp' },
   { slug: 'orquidea-duas-hastes-branca-no-cachepo', nome: 'Orquídea Duas Hastes Branca No Cachepô', preco: 80, categoria: 'presentes', imagem: 'https://floriculturarosas.site/__l5e/assets-v1/d529cc69-6b2d-4074-a5df-2b81513c0a9e/orquidea-duas-hastes-branca-no-cachepo-0-detail.webp' },
 ];
 
@@ -57,4 +59,16 @@ export const DESCONTO_PIX = 0.13;
 // Helper: calcula preco com desconto PIX (arredondado pra inteiro)
 export function precoComPix(preco: number): number {
   return Math.round(preco * (1 - DESCONTO_PIX));
+}
+
+// Retorna preco final ao pagar via PIX (considera promoday se existir)
+export function precoFinalPix(produto: Produto | { preco: number; precoPromoday?: number }): number {
+  if (produto.precoPromoday) return produto.precoPromoday;
+  return precoComPix(produto.preco);
+}
+
+// Calcula % de desconto entre 2 valores
+export function percentualDesconto(precoDe: number, precoPor: number): number {
+  if (precoDe <= 0) return 0;
+  return Math.round(((precoDe - precoPor) / precoDe) * 100);
 }

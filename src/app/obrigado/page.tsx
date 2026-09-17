@@ -3,7 +3,7 @@ import { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { CheckCircle2 } from 'lucide-react';
-import { NOME_LOJA, COR_PRIMARIA, precoComPix } from '@/lib/flores-produtos';
+import { NOME_LOJA, COR_PRIMARIA, precoComPix, precoFinalPix, PRODUTOS } from '@/lib/flores-produtos';
 import LogoRosas from '@/components/LogoRosas';
 
 const GREEN = '#059669';
@@ -65,10 +65,18 @@ function Content() {
                 <span>Subtotal</span><span style={{ textDecoration: 'line-through' }}>R$ {pedido.total},00</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#059669', fontWeight: 700, marginBottom: 8 }}>
-                <span>Desconto PIX (13%)</span><span>− R$ {pedido.total - precoComPix(pedido.total)}</span>
+                <span>Desconto no PIX</span><span>− R$ {pedido.total - (pedido.itens || []).reduce((s: number, i: any) => {
+                  const prod = PRODUTOS.find(p => p.slug === i.slug);
+                  const uni = prod ? precoFinalPix(prod) : precoFinalPix({ preco: i.preco });
+                  return s + uni * i.qtd;
+                }, 0)}</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 16, fontWeight: 900, color: '#059669' }}>
-                <span>Pago no PIX</span><span>R$ {precoComPix(pedido.total)}</span>
+                <span>Pago no PIX</span><span>R$ {(pedido.itens || []).reduce((s: number, i: any) => {
+                  const prod = PRODUTOS.find(p => p.slug === i.slug);
+                  const uni = prod ? precoFinalPix(prod) : precoFinalPix({ preco: i.preco });
+                  return s + uni * i.qtd;
+                }, 0)}</span>
               </div>
             </div>
           )}

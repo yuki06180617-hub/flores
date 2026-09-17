@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ChevronLeft, ShoppingCart, CreditCard, Lock, ShieldCheck, Truck, Calendar, Bell, User, MapPin, CheckCircle2, Loader2, AlertCircle } from 'lucide-react';
-import { NOME_LOJA, COR_PRIMARIA, COR_SOFT, precoComPix } from '@/lib/flores-produtos';
+import { NOME_LOJA, COR_PRIMARIA, COR_SOFT, precoComPix, precoFinalPix, PRODUTOS } from '@/lib/flores-produtos';
 import { proximosDiasComSlots } from '@/lib/flores-entrega';
 import LogoRosas from '@/components/LogoRosas';
 
@@ -68,7 +68,11 @@ export default function CheckoutPage() {
   }, [entregaTipo, diasSlots, entregaData]);
 
   const total = itens.reduce((s, i) => s + i.preco * i.qtd, 0);
-  const totalPix = precoComPix(total);
+  const totalPix = itens.reduce((s, i) => {
+    const prodCatalogo = PRODUTOS.find(p => p.slug === i.slug);
+    const precoUnit = prodCatalogo ? precoFinalPix(prodCatalogo) : precoFinalPix({ preco: i.preco });
+    return s + precoUnit * i.qtd;
+  }, 0);
   const descontoValor = total - totalPix;
 
   const formatarCPF = (v: string) => v.replace(/\D/g, '').slice(0, 11).replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d{1,2})$/, '$1-$2');
@@ -580,7 +584,7 @@ export default function CheckoutPage() {
                 <span>Subtotal</span><span>R$ {total},00</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 13, color: GREEN, fontWeight: 700 }}>
-                <span>Desconto PIX (13%)</span><span>− R$ {descontoValor}</span>
+                <span>Desconto no PIX</span><span>− R$ {descontoValor}</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 14, fontSize: 13, color: GREEN, fontWeight: 700 }}>
                 <span>Entrega</span><span>Grátis</span>

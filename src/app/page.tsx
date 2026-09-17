@@ -2,10 +2,11 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ShoppingCart, Clock, Truck } from 'lucide-react';
-import { PRODUTOS, CATEGORIAS, NOME_LOJA, TAGLINE, COR_PRIMARIA, COR_SOFT, COR_DEEP, precoComPix } from '@/lib/flores-produtos';
+import { PRODUTOS, CATEGORIAS, NOME_LOJA, TAGLINE, COR_PRIMARIA, COR_SOFT, COR_DEEP, precoComPix, precoFinalPix, percentualDesconto } from '@/lib/flores-produtos';
 import CepEntrega from '@/components/CepEntrega';
 import LogoRosas from '@/components/LogoRosas';
 import Sacola from '@/components/Sacola';
+import PromodayBanner from '@/components/PromodayBanner';
 import { estaAberto, proximaAbertura } from '@/lib/flores-horario';
 
 function useCarrinho() {
@@ -107,6 +108,9 @@ export default function HomeFlores() {
         <CepEntrega />
       </section>
 
+      {/* Banner PROMODAY */}
+      <PromodayBanner onAdicionar={adicionar} />
+
       {/* Filtros de categoria */}
       <section style={{ maxWidth: 1200, margin: '0 auto', padding: '0 20px 24px', display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center' }}>
         <button onClick={() => setFiltro('todos')} style={{ padding: '10px 18px', border: `1.5px solid ${filtro === 'todos' ? COR_PRIMARIA : '#E5E5E5'}`, background: filtro === 'todos' ? COR_PRIMARIA : '#FFF', color: filtro === 'todos' ? '#FFF' : '#555', borderRadius: 999, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
@@ -141,9 +145,11 @@ export default function HomeFlores() {
                   <div style={{ marginBottom: 10 }}>
                     <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
                       <span style={{ fontSize: 13, color: '#999', textDecoration: 'line-through', fontWeight: 500 }}>R$ {p.preco}</span>
-                      <span style={{ fontSize: 20, fontWeight: 900, color: '#059669' }}>R$ {precoComPix(p.preco)}</span>
+                      <span style={{ fontSize: 20, fontWeight: 900, color: '#059669' }}>R$ {precoFinalPix(p)}</span>
                     </div>
-                    <div style={{ fontSize: 11, color: '#059669', fontWeight: 700, marginTop: 2 }}>13% off no PIX</div>
+                    <div style={{ fontSize: 11, color: '#059669', fontWeight: 700, marginTop: 2 }}>
+                      {p.precoPromoday ? `${percentualDesconto(p.preco, p.precoPromoday)}% off · PROMODAY` : '13% off no PIX'}
+                    </div>
                   </div>
                 </div>
               </Link>

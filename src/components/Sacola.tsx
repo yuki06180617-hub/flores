@@ -2,9 +2,16 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { X, Trash2, ShoppingBag } from 'lucide-react';
-import { COR_PRIMARIA, COR_SOFT, precoComPix } from '@/lib/flores-produtos';
+import { COR_PRIMARIA, COR_SOFT, precoComPix, precoFinalPix, PRODUTOS } from '@/lib/flores-produtos';
 
 type Item = { slug: string; nome: string; preco: number; imagem: string; qtd: number };
+
+function precoPixItem(item: Item): number {
+  // Busca no catalogo pra ver se tem promoday
+  const p = PRODUTOS.find(x => x.slug === item.slug);
+  if (p) return precoFinalPix(p);
+  return precoFinalPix({ preco: item.preco });
+}
 
 export default function Sacola() {
   const [aberto, setAberto] = useState(false);
@@ -53,6 +60,7 @@ export default function Sacola() {
   };
 
   const subtotal = itens.reduce((s, i) => s + i.preco * i.qtd, 0);
+  const subtotalPix = itens.reduce((s, i) => s + precoPixItem(i) * i.qtd, 0);
 
   if (!aberto) return null;
 
@@ -128,12 +136,12 @@ export default function Sacola() {
               <span style={{ color: '#888', textDecoration: 'line-through' }}>R$ {subtotal},00</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6, fontSize: 12, color: '#059669', fontWeight: 700 }}>
-              <span>Desconto PIX (13%)</span>
-              <span>− R$ {subtotal - precoComPix(subtotal)}</span>
+              <span>Desconto no PIX</span>
+              <span>− R$ {subtotal - subtotalPix}</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4, fontSize: 14 }}>
               <span style={{ color: '#1a0f0f', fontWeight: 800 }}>Total no PIX</span>
-              <span style={{ fontSize: 22, fontWeight: 900, color: '#059669' }}>R$ {precoComPix(subtotal)}</span>
+              <span style={{ fontSize: 22, fontWeight: 900, color: '#059669' }}>R$ {subtotalPix}</span>
             </div>
             <div style={{ fontSize: 11, color: '#8a6a6a', marginBottom: 14 }}>
               Frete e agendamento na próxima etapa.
