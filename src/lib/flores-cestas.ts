@@ -27,9 +27,6 @@ export const CESTAS: Cesta[] = [
       '1un. Cachepot em kraft rígido decorado - rosé ou neutro',
       '1un. Envelope com cartão',
       'Fechamento em celofane, fita e tag',
-      'TODAS AS CESTAS INCLUEM CARTÃO:',
-      'Confirmação do pedido',
-      'Vamos confirmar seu pedido e qualquer outro detalhe necessário.',
     ],
   },
   {
@@ -56,8 +53,6 @@ export const CESTAS: Cesta[] = [
       '1un. Bandeja em madeira reutilizável',
       '1un. Envelope com cartão',
       'Fechamento em celofane, fita e tag',
-      'TODAS AS CESTAS INCLUEM CARTÃO:',
-      'Confirmação do pedido',
     ],
   },
   {
@@ -84,9 +79,6 @@ export const CESTAS: Cesta[] = [
       '1un. Caixa redonda em MDF com tampa',
       '1un. Envelope com cartão',
       'Fechamento em celofane, fita e tag',
-      'TODAS AS CESTAS INCLUEM CARTÃO:',
-      'Confirmação do pedido',
-      'Vamos confirmar seu pedido e qualquer outro detalhe necessário.',
     ],
   },
   {
@@ -110,9 +102,6 @@ export const CESTAS: Cesta[] = [
       '1un. Cachepot em kraft rígido decorado - rosé ou neutro',
       '1un. Envelope com cartão',
       'Fechamento em celofane, fita e tag',
-      'TODAS AS CESTAS INCLUEM CARTÃO:',
-      'Confirmação do pedido',
-      'Vamos confirmar seu pedido e qualquer outro detalhe necessário.',
     ],
   },
   {
@@ -137,8 +126,6 @@ export const CESTAS: Cesta[] = [
       '1un. Bandeja em madeira reutilizável',
       '1un. Envelope com cartão',
       'Fechamento em celofane, fita e tag',
-      'TODAS AS CESTAS INCLUEM CARTÃO:',
-      'Confirmação do pedido',
     ],
   },
   {
@@ -162,9 +149,6 @@ export const CESTAS: Cesta[] = [
       '1un. Bandejinha reutilizável de madeira',
       '1un. Envelope com cartão',
       'Fechamento em celofane, fita e tag',
-      'TODAS AS CESTAS INCLUEM CARTÃO:',
-      'Confirmação do pedido',
-      'Vamos confirmar seu pedido e qualquer outro detalhe necessário.',
     ],
   },
   {
@@ -194,8 +178,6 @@ export const CESTAS: Cesta[] = [
       '1un. Bandeja em madeira reutilizável',
       '1un. Fechamento em celofane, fita e tag',
       '1un. Envelope com cartão',
-      'TODAS AS CESTAS INCLUEM CARTÃO:',
-      'Confirmação do pedido',
     ],
   },
   {
@@ -222,9 +204,6 @@ export const CESTAS: Cesta[] = [
       '1un. Cesto em fibra natural',
       '1un. Envelope com cartão',
       'Fechamento em celofane, fita e tag',
-      'TODAS AS CESTAS INCLUEM CARTÃO:',
-      'Confirmação do pedido',
-      'Vamos confirmar seu pedido e qualquer outro detalhe necessário.',
     ],
   },
   {
@@ -257,8 +236,6 @@ export const CESTAS: Cesta[] = [
       '1un. Vasinho com flores frescas',
       '1un. Fechamento em celofane, fita e tag',
       '1un. Envelope com cartão',
-      'TODAS AS CESTAS INCLUEM CARTÃO:',
-      'Confirmação do pedido',
     ],
   },
   {
@@ -283,9 +260,6 @@ export const CESTAS: Cesta[] = [
       '1un. Caixa redonda em MDF com tampa',
       '1un. Envelope com cartão',
       'Fechamento em celofane, fita e tag',
-      'TODAS AS CESTAS INCLUEM CARTÃO:',
-      'Confirmação do pedido:',
-      'Vamos confirmar seu pedido e qualquer outro detalhe necessário.',
     ],
   },
 ];
