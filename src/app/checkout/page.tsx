@@ -601,7 +601,7 @@ export default function CheckoutPage() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 13, color: '#8a6a6a' }}>
             <span>{itens.length} {itens.length === 1 ? 'item' : 'itens'}</span>
             <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: 11, color: '#999', textDecoration: 'line-through' }}>R$ {total}</div>
+              <div style={{ fontSize: 11, color: '#999', textDecoration: 'line-through' }}>R$ {total},00</div>
               <div style={{ fontSize: 16, fontWeight: 900, color: '#059669' }}>R$ {totalPix} no PIX</div>
             </div>
           </div>
