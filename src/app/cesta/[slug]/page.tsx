@@ -101,6 +101,23 @@ export default function CestaIndividual() {
               </div>
             )}
 
+            {produto.itens && produto.itens.length > 0 && (
+              <div style={{ marginTop: 16, padding: 20, background: '#FFF', borderRadius: 12, border: '1px solid #F0EDE8' }}>
+                <div style={{ fontSize: 11, color: COR_DEEP, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <ShieldCheck size={13} color={COR_PRIMARIA} />
+                  Esta cesta inclui
+                </div>
+                <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'grid', gap: 6 }}>
+                  {produto.itens.map((item, i) => (
+                    <li key={i} style={{ fontSize: 13, color: '#333', lineHeight: 1.55, display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+                      <span style={{ color: COR_PRIMARIA, fontWeight: 900, flexShrink: 0, marginTop: 2 }}>•</span>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
             <div style={{ marginTop: 24 }}>
               <div style={{ fontSize: 13, fontWeight: 700, color: '#333', marginBottom: 8 }}>Quantidade</div>
               <div style={{ display: 'inline-flex', alignItems: 'center', border: '1.5px solid #E5E5E5', borderRadius: 10, overflow: 'hidden' }}>
