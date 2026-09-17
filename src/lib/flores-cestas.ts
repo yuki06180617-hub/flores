@@ -11,7 +11,7 @@ export const CESTAS: Cesta[] = [
   {
     slug: 'bambini',
     nome: 'Bambini | Cesta de café da manhã infantil | Congregare',
-    preco: 200,
+    preco: 140,
     imagem: 'https://static.wixstatic.com/media/c3a811_d00ea6fc341c4e11b785b4d99839c5f2~mv2.jpeg/v1/fit/w_800,h_800,q_85/file.jpg',
     itens: [
       '1un. Mini pão de batata',
@@ -44,7 +44,7 @@ export const CESTAS: Cesta[] = [
   {
     slug: 'buongiorno-a-due-cesta-cafe-da-manha-casal',
     nome: 'Buongiorno a Due | Cesta de café da manhã para casal | Congregare',
-    preco: 347,
+    preco: 243,
     imagem: 'https://static.wixstatic.com/media/c3a811_6117a5fb6ad24f03b486c17efe0cc140~mv2.jpeg/v1/fit/w_800,h_800,q_85/file.jpg',
     itens: [
       '1un. Requeijão de corte 80g',
@@ -83,7 +83,7 @@ export const CESTAS: Cesta[] = [
   {
     slug: 'buongiorno-surpresa-cesta-de-cafe-da-manha-com-flor',
     nome: 'Cesta de Café da Manhã Com Flores | Congregare',
-    preco: 286,
+    preco: 200,
     imagem: 'https://static.wixstatic.com/media/c3a811_0179acb8718c436bbf5b3927a40b45aa~mv2.jpeg/v1/fit/w_800,h_800,q_85/file.jpg',
     itens: [
       '1un. Requeijão de corte 100g',
@@ -118,7 +118,7 @@ export const CESTAS: Cesta[] = [
   {
     slug: 'cesta-brunch-congregare',
     nome: 'Cesta de brunch para café da manhã | Congregare',
-    preco: 423,
+    preco: 296,
     imagem: 'https://static.wixstatic.com/media/c3a811_a163173c28c549848be81a70c6381dd9~mv2.jpeg/v1/fit/w_800,h_800,q_85/file.jpg',
     itens: [
       '1un. Presunto cru italiano 80g [D’or ou Vito Balducci]',
@@ -153,7 +153,7 @@ export const CESTAS: Cesta[] = [
   {
     slug: 'cesta-de-aniversario-auguri',
     nome: 'Cesta de Café da Manhã de Aniversário Auguri | Congregare',
-    preco: 289,
+    preco: 202,
     imagem: 'https://static.wixstatic.com/media/c3a811_cf37f773c144479998db3e127bd2a7f6~mv2.jpeg/v1/fit/w_800,h_800,q_85/file.jpg',
     itens: [
       '1 Doce - Escolha: Mini cake com velinha | Bolinho artesanal & Trios de brigadeiros | Macarons 4un.',
@@ -190,7 +190,7 @@ export const CESTAS: Cesta[] = [
   {
     slug: 'cesta-de-cafe-da-manha-buongiorno',
     nome: 'Cesta de Café da Manhã Buongiorno | Congregare',
-    preco: 265,
+    preco: 186,
     imagem: 'https://static.wixstatic.com/media/c3a811_1e1e2406f18f4c0ebff9f325fc4af4ab~mv2.jpeg/v1/fit/w_800,h_800,q_85/file.jpg',
     itens: [
       '1un. Requeijão de corte 80g',
@@ -227,7 +227,7 @@ export const CESTAS: Cesta[] = [
   {
     slug: 'cesta-de-cafe-da-manha-buongiorno-speciale',
     nome: 'Buongiorno Speciale | Cesta de café da manhã | Congregare',
-    preco: 472,
+    preco: 330,
     imagem: 'https://static.wixstatic.com/media/c3a811_64c09498babd4fac9058592ed17569b6~mv2.jpeg/v1/fit/w_800,h_800,q_85/file.jpg',
     itens: [
       '1un. Requeijão de corte 80g',
@@ -270,7 +270,7 @@ export const CESTAS: Cesta[] = [
   {
     slug: 'cesta-de-cafe-da-manha-de-aniversario',
     nome: 'Buon Compleanno | Cesta de café da manhã de aniversário',
-    preco: 385,
+    preco: 270,
     imagem: 'https://static.wixstatic.com/media/c3a811_ec452d0e4b4a4e25b6ab77afdbb7ccdb~mv2.jpeg/v1/fit/w_800,h_800,q_85/file.jpg',
     itens: [
       '1 Doce - Escolha: Mini cake com velinha | Brownie & Trios de brigadeiros | Macarons 4un.',
@@ -309,7 +309,7 @@ export const CESTAS: Cesta[] = [
   {
     slug: 'mammamia',
     nome: 'Mamma Mia | Cesta Premium de Café da Manhã | Congregare',
-    preco: 627,
+    preco: 439,
     imagem: 'https://static.wixstatic.com/media/0d833e_444e6e315d5c46f7bd9b1d794c682c5f~mv2.jpeg/v1/fit/w_800,h_800,q_85/file.jpg',
     itens: [
       '1un. Queijo Brie 125g [Île de France ou Paysan Breton]',
@@ -352,7 +352,7 @@ export const CESTAS: Cesta[] = [
   {
     slug: 'petit-brunch-cesta-de-cafe-da-manha-com-flores',
     nome: 'Petit Brunch | Cesta de café da manhã com flores | Congregare',
-    preco: 286,
+    preco: 200,
     imagem: 'https://static.wixstatic.com/media/c3a811_98aedb15ba6048e59286166fe48e1236~mv2.jpeg/v1/fit/w_800,h_800,q_85/file.jpg',
     itens: [
       '1un. Mini buquê de flores - Escolha: frescas ou secas',
