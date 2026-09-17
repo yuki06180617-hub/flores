@@ -337,7 +337,7 @@ export default function CheckoutPage() {
           <div style={{ marginTop: 16, padding: '12px 16px', background: '#FFF', borderRadius: 10, border: '1px solid #F0DDDD', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{ fontSize: 13, color: '#8a6a6a' }}>
               <ShoppingCart size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 6 }} />
-              {itens.length} {itens.length === 1 ? 'item' : 'itens'} · <b style={{ color: '#1a0f0f' }}>R$ {total},00</b>
+              {itens.length} {itens.length === 1 ? 'item' : 'itens'} · <span style={{ color: '#999', textDecoration: 'line-through' }}>R$ {total},00</span> <b style={{ color: '#059669' }}>R$ {totalPix} no PIX</b>
             </div>
           </div>
         </div>
