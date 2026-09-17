@@ -116,7 +116,7 @@ export default function PromodayBanner({ onAdicionar }: { onAdicionar?: (produto
               onClick={() => onAdicionar?.(produto)}
               style={{ width: '100%', padding: '13px', background: '#FFB020', color: '#1a0f0f', border: 'none', borderRadius: 9, fontSize: 13, fontWeight: 900, cursor: 'pointer', letterSpacing: '0.02em' }}
             >
-              Aproveitar oferta agora →
+              Adicionar ao carrinho
             </button>
           </div>
         </div>
