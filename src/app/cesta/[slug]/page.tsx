@@ -6,6 +6,7 @@ import { ShoppingCart, ChevronLeft, Minus, Plus, Truck, Clock, ShieldCheck, Coff
 import { CESTAS } from '@/lib/flores-cestas';
 import { COR_PRIMARIA, COR_SOFT, COR_DEEP, NOME_LOJA } from '@/lib/flores-produtos';
 import Sacola from '@/components/Sacola';
+import CepEntrega from '@/components/CepEntrega';
 import LogoRosas from '@/components/LogoRosas';
 
 export default function CestaIndividual() {
@@ -93,6 +94,8 @@ export default function CestaIndividual() {
             <h1 style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 30, fontWeight: 600, margin: 0, lineHeight: 1.15, letterSpacing: '-0.02em', color: '#1a0f0f' }}>{produto.nome}</h1>
 
             <div style={{ fontSize: 36, fontWeight: 900, color: COR_PRIMARIA, marginTop: 16, letterSpacing: '-0.02em' }}>R$ {produto.preco},00</div>
+
+            <CepEntrega />
 
             {produto.descricao && (
               <div style={{ marginTop: 20, padding: 18, background: '#FAFAF7', borderRadius: 12, border: '1px solid #F0EDE8' }}>

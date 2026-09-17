@@ -114,10 +114,16 @@ export default function CestasCafeManhaPage() {
                   <div style={{ fontSize: 22, fontWeight: 900, color: COR_PRIMARIA, marginBottom: 12, letterSpacing: '-0.02em' }}>R$ {p.preco},00</div>
                 </div>
               </Link>
-              <div style={{ padding: '0 16px 16px' }}>
+              <div style={{ padding: '0 16px 16px', display: 'grid', gap: 8 }}>
+                <Link
+                  href={`/cesta/${p.slug}`}
+                  style={{ display: 'block', width: '100%', padding: '11px', background: COR_PRIMARIA, color: '#FFF', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 800, cursor: 'pointer', textAlign: 'center', textDecoration: 'none', letterSpacing: '0.02em' }}
+                >
+                  Ver detalhes
+                </Link>
                 <button
                   onClick={() => adicionar(p)}
-                  style={{ display: 'block', width: '100%', padding: '10px', background: '#FFF', color: COR_PRIMARIA, border: `1.5px solid ${COR_PRIMARIA}`, borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}
+                  style={{ display: 'block', width: '100%', padding: '10px', background: '#FFF', color: COR_PRIMARIA, border: `1.5px solid ${COR_PRIMARIA}`, borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}
                 >
                   Adicionar ao carrinho
                 </button>
