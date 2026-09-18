@@ -60,12 +60,6 @@ export default function CestasCafeManhaPage() {
         Entregas exclusivas para <strong>São Paulo e região</strong>
       </div>
 
-      {/* Aviso: apenas SP e regiao */}
-      <div style={{ background: '#FFF8F8', borderBottom: '1px solid #F0DDDD', padding: '10px 20px', textAlign: 'center', fontSize: 12, color: '#1a0f0f', fontWeight: 600, letterSpacing: '0.02em' }}>
-        <MapPin size={13} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 6, color: '#DC2626' }} />
-        Entregas exclusivas para <strong>São Paulo e região</strong>
-      </div>
-
       {/* Header */}
       <header style={{ background: '#FFF', borderBottom: '1px solid #F1E4E4', padding: '16px 20px', position: 'sticky', top: 0, zIndex: 50, boxShadow: '0 1px 8px rgba(0,0,0,0.03)' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
