@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ShoppingCart, Clock, Coffee } from 'lucide-react';
+import { ShoppingCart, Clock, Coffee, MapPin } from 'lucide-react';
 import { CESTAS, precoFinalCesta, percentualDescontoCesta } from '@/lib/flores-cestas';
 import { COR_PRIMARIA, COR_SOFT, COR_DEEP, NOME_LOJA } from '@/lib/flores-produtos';
 import Sacola from '@/components/Sacola';
@@ -52,6 +52,12 @@ export default function CestasCafeManhaPage() {
       <div style={{ background: '#1a0f0f', color: '#FFF', padding: '9px 20px', fontSize: 12, textAlign: 'center', letterSpacing: '0.02em' }}>
         <Clock size={12} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 6 }} />
         Entrega das 06:30 às 22:30 · Entrega expressa ou agendada
+      </div>
+
+      {/* Aviso: apenas SP e regiao */}
+      <div style={{ background: '#FFF8F8', borderBottom: '1px solid #F0DDDD', padding: '10px 20px', textAlign: 'center', fontSize: 12, color: '#1a0f0f', fontWeight: 600, letterSpacing: '0.02em' }}>
+        <MapPin size={13} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 6, color: '#DC2626' }} />
+        Entregas exclusivas para <strong>São Paulo e região</strong>
       </div>
 
       {/* Aviso: apenas SP e regiao */}
