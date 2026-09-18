@@ -566,7 +566,7 @@ export default function CheckoutPage() {
                 </button>
               ) : (
                 <button onClick={gerarPix} disabled={gerando} style={{ width: '100%', padding: '16px', background: gerando ? '#999' : COR_PRIMARIA, color: '#FFF', border: 'none', borderRadius: 10, fontSize: 15, fontWeight: 800, cursor: gerando ? 'wait' : 'pointer' }}>
-                  {gerando ? 'Gerando PIX...' : `Pagar R$ ${totalPix} no PIX`}
+                  {gerando ? 'Gerando PIX...' : 'Pagar agora'}
                 </button>
               )}
               <button onClick={voltar} style={{ width: '100%', padding: '13px', background: 'transparent', color: '#666', border: '1px solid #E5E5E5', borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
