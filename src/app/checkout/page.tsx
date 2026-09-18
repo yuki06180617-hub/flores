@@ -23,6 +23,7 @@ const STEPS: { n: Step; label: string; icone: any }[] = [
 export default function CheckoutPage() {
   const router = useRouter();
   const [cepConfirmado, setCepConfirmado] = useState(false);
+  const [voltarUrl, setVoltarUrl] = useState('/');
   const [step, setStep] = useState<Step>(1);
   const [itens, setItens] = useState<Item[]>([]);
   const [dados, setDados] = useState({ nome: '', cpf: '', telefone: '', cep: '', rua: '', numero: '', bairro: '', cidade: '', uf: '', complemento: '', destinatario: '', mensagem: '' });
@@ -48,6 +49,20 @@ export default function CheckoutPage() {
       const arr = raw ? JSON.parse(raw) : [];
       if (arr.length === 0) { router.push('/'); return; }
       setItens(arr);
+      // Detecta pagina de origem pra voltar corretamente
+      try {
+        const ref = document.referrer || '';
+        if (ref.includes('/cesta')) {
+          setVoltarUrl('/cesta-cafe-da-manha');
+          localStorage.setItem('flores_voltar', '/cesta-cafe-da-manha');
+        } else if (ref.includes('/produto')) {
+          setVoltarUrl('/');
+          localStorage.setItem('flores_voltar', '/');
+        } else {
+          const salvo = localStorage.getItem('flores_voltar');
+          if (salvo) setVoltarUrl(salvo);
+        }
+      } catch {}
       const cepSalvo = localStorage.getItem('flores_cep');
       if (cepSalvo) {
         try {
@@ -212,7 +227,7 @@ export default function CheckoutPage() {
         </header>
 
         <div style={{ maxWidth: 560, margin: '0 auto', padding: '16px' }}>
-          <button onClick={() => router.push('/')} style={{ background: 'transparent', border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, color: '#666', fontSize: 13, marginBottom: 16, padding: 0, fontFamily: 'inherit' }}>
+          <button onClick={() => router.push(voltarUrl)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, color: '#666', fontSize: 13, marginBottom: 16, padding: 0, fontFamily: 'inherit' }}>
             <ChevronLeft size={16} /> Continuar comprando
           </button>
 
